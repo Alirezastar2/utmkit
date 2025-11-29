@@ -18,6 +18,7 @@ async function getAdminStats() {
     activeUsers,
     usersByPlan,
     recentUsers,
+    openTickets,
   ] = await Promise.all([
     // Total users
     prisma.user.count(),
@@ -132,7 +133,10 @@ async function getAdminStats() {
       plan: item.plan,
       count: item._count.id,
     })),
-    recentUsers,
+    recentUsers: recentUsers.map((user) => ({
+      ...user,
+      createdAt: user.createdAt.toISOString(),
+    })),
     topUsers: topUsersWithClicks.sort((a, b) => b.totalClicks - a.totalClicks),
     clicksByDay: clicksByDayRaw.map((item: any) => ({
       date: item.date,

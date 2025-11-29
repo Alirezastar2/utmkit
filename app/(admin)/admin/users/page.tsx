@@ -71,6 +71,8 @@ async function getUsers(searchParams: any) {
 
       return {
         ...user,
+        planExpiresAt: user.planExpiresAt ? user.planExpiresAt.toISOString() : null,
+        createdAt: user.createdAt.toISOString(),
         totalClicks,
       }
     })

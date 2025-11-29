@@ -45,9 +45,20 @@ export default async function TicketDetailPage({
     redirect('/tickets')
   }
 
+  // Transform ticket data to match component interface
+  const transformedTicket = {
+    ...ticket,
+    createdAt: ticket.createdAt.toISOString(),
+    updatedAt: ticket.updatedAt.toISOString(),
+    replies: ticket.replies.map((reply) => ({
+      ...reply,
+      createdAt: reply.createdAt.toISOString(),
+    })),
+  }
+
   return (
     <Suspense fallback={<div>در حال بارگذاری...</div>}>
-      <TicketDetail ticket={ticket} currentUserId={session.user.id} isAdmin={session.user.role === 'ADMIN'} />
+      <TicketDetail ticket={transformedTicket} currentUserId={session.user.id} isAdmin={session.user.role === 'ADMIN'} />
     </Suspense>
   )
 }

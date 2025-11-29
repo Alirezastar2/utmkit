@@ -77,7 +77,15 @@ async function getUserData(id: string) {
 
   return {
     user,
-    links,
+    links: links.map((link) => ({
+      id: link.id,
+      title: link.title,
+      originalUrl: link.originalUrl,
+      shortCode: link.shortCode,
+      createdAt: link.createdAt.toISOString(),
+      _count: link._count,
+      category: link.category ? { name: link.category.name } : null,
+    })),
     stats: {
       totalClicks,
       recentClicks,
@@ -147,7 +155,16 @@ export default async function AdminUserDetailPage({
           </p>
         </div>
         <div className="flex gap-3">
-          <UserEditDialog user={user} />
+          <UserEditDialog 
+            user={{
+              id: user.id,
+              email: user.email,
+              name: user.name,
+              role: user.role,
+              plan: user.plan,
+              planExpiresAt: user.planExpiresAt ? user.planExpiresAt.toISOString() : null,
+            }} 
+          />
           <Link href="/admin/users">
             <Button variant="outline">
               <ArrowRight className="ml-2 h-4 w-4" />
