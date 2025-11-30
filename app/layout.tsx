@@ -3,6 +3,7 @@ import localFont from 'next/font/local'
 import './globals.css'
 import { Toaster } from 'sonner'
 import Providers from '@/components/providers/Providers'
+import { generateMetadata as genMeta, getOrganizationSchema, getWebsiteSchema, getSoftwareApplicationSchema, getServiceSchema } from '@/lib/seo'
 
 const iranSans = localFont({
   src: [
@@ -56,25 +57,49 @@ const iranSans = localFont({
   display: 'swap',
 })
 
-export const metadata: Metadata = {
+export const metadata: Metadata = genMeta({
   title: 'یوتیم کیت - پلتفرم ساخت لینک هوشمند و ردیابی UTM',
-  description: 'یوتیم کیت: ساخت لینک‌های کوتاه و ردیابی UTM برای کمپین‌های بازاریابی',
-}
+  description: 'پلتفرم حرفه‌ای ساخت لینک کوتاه و ردیابی UTM برای کمپین‌های بازاریابی. ساخت لینک‌های کوتاه، ردیابی کلیک‌ها، آمار دقیق و QR Code برای کسب‌وکارهای ایرانی.',
+})
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-    return (
-      <html lang="fa" dir="rtl" className={iranSans.variable} suppressHydrationWarning>
-        <body className={`${iranSans.className} antialiased bg-background text-foreground`}>
-          <Providers>
-            {children}
-          </Providers>
-          <Toaster position="top-center" richColors />
-        </body>
-      </html>
-    )
+  const organizationSchema = getOrganizationSchema()
+  const websiteSchema = getWebsiteSchema()
+  const softwareSchema = getSoftwareApplicationSchema()
+  const serviceSchema = getServiceSchema()
+
+  return (
+    <html lang="fa" dir="rtl" className={iranSans.variable} suppressHydrationWarning>
+      <head>
+        {/* Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }}
+        />
+      </head>
+      <body className={`${iranSans.className} antialiased bg-background text-foreground`}>
+        <Providers>
+          {children}
+        </Providers>
+        <Toaster position="top-center" richColors />
+      </body>
+    </html>
+  )
 }
 
