@@ -6,7 +6,7 @@ export const metadata: Metadata = genMeta({
   description: 'انتخاب پلن مناسب برای نیازهای خود. پلن رایگان، پایه و حرفه‌ای با ویژگی‌های مختلف برای ساخت لینک کوتاه و ردیابی UTM.',
   keywords: ['قیمت', 'پلن', 'اشتراک', 'لینک کوتاه', 'UTM tracking', 'pricing'],
   url: '/pricing',
-  type: 'product',
+  type: 'website',
 })
 
 export default function PricingLayout({

@@ -50,7 +50,7 @@ export function generateMetadata({
   keywords?: string[]
   image?: string
   url?: string
-  type?: 'website' | 'article' | 'product'
+  type?: 'website' | 'article'
   noindex?: boolean
   nofollow?: boolean
 }): Metadata {
@@ -88,7 +88,7 @@ export function generateMetadata({
       },
     },
     openGraph: {
-      type: type === 'article' ? 'article' : type === 'product' ? 'product' : 'website',
+      type: type === 'article' ? 'article' : 'website',
       locale: siteConfig.locale,
       url: fullUrl,
       title: fullTitle,
