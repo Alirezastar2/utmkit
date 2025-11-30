@@ -31,12 +31,12 @@ export default function LandingPage() {
             <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-400/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
           </div>
 
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-900/30 dark:to-cyan-900/30 px-4 py-2 text-sm font-medium text-teal-700 dark:text-teal-300 border border-teal-200/50 dark:border-teal-700/50 shadow-sm">
+          <div className="mb-10 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-900/30 dark:to-cyan-900/30 px-4 py-2 text-sm font-medium text-teal-700 dark:text-teal-300 border border-teal-200/50 dark:border-teal-700/50 shadow-sm">
             <Sparkles className="h-4 w-4 animate-spin" />
             <span>پلتفرم حرفه‌ای ردیابی لینک</span>
           </div>
           
-          <h2 className="mb-6 text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight">
+          <h2 className="mb-10 text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight">
             <span className="bg-gradient-to-r from-teal-600 via-cyan-600 to-teal-600 bg-clip-text text-transparent animate-gradient">
               پلتفرم ساخت لینک هوشمند
             </span>
@@ -44,13 +44,13 @@ export default function LandingPage() {
             <span className="text-gray-800 dark:text-gray-200">و ردیابی UTM</span>
           </h2>
           
-          <p className="mx-auto mb-10 max-w-2xl text-xl md:text-2xl text-gray-600 dark:text-gray-400 leading-relaxed">
+          <p className="mx-auto mb-14 max-w-2xl text-xl md:text-2xl text-gray-600 dark:text-gray-400 leading-relaxed">
             لینک‌های کوتاه و قابل ردیابی برای کمپین‌های بازاریابی خود بسازید.
             <br />
             <span className="font-semibold text-teal-600 dark:text-teal-400">آمار دقیق کلیک‌ها</span> را مشاهده کنید و عملکرد کمپین‌های خود را بهبود دهید.
           </p>
           
-          <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12">
+          <div className="flex flex-col sm:flex-row justify-center gap-4 mb-16">
             <Link href="/auth/register">
               <Button size="lg" className="bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 shadow-xl shadow-teal-500/30 text-lg px-8 py-6 h-auto group">
                 شروع رایگان
@@ -66,7 +66,7 @@ export default function LandingPage() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto mt-16">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto mt-20">
             <div className="text-center">
               <div className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">
                 ۱۰۰۰+
@@ -95,8 +95,8 @@ export default function LandingPage() {
         </section>
 
         {/* Features */}
-        <section className="container mx-auto px-4 py-20">
-          <div className="text-center mb-16">
+        <section className="container mx-auto px-4 py-24">
+          <div className="text-center mb-20">
             <Badge className="mb-4 bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300">
               ویژگی‌های اصلی
             </Badge>
@@ -168,9 +168,9 @@ export default function LandingPage() {
         </section>
 
         {/* Advanced Features */}
-        <section className="bg-gradient-to-br from-gray-50 to-teal-50/30 dark:from-gray-800 dark:to-gray-900 py-20">
+        <section className="bg-gradient-to-br from-gray-50 to-teal-50/30 dark:from-gray-800 dark:to-gray-900 py-24">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-16">
+            <div className="text-center mb-20">
               <Badge className="mb-4 bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300">
                 قابلیت‌های پیشرفته
               </Badge>
@@ -256,16 +256,16 @@ export default function LandingPage() {
         </section>
 
         {/* Why Section */}
-        <section className="container mx-auto px-4 py-20">
-          <div className="grid gap-12 lg:grid-cols-2 items-center">
+        <section className="container mx-auto px-4 py-24">
+          <div className="grid gap-16 lg:grid-cols-2 items-center">
             <div>
               <Badge className="mb-4 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
                 چرا یوتیم کیت؟
               </Badge>
-              <h3 className="mb-6 text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100">
+              <h3 className="mb-8 text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100">
                 راه‌حل ایده‌آل برای بازاریابان ایرانی
               </h3>
-              <div className="space-y-4 text-lg text-gray-700 dark:text-gray-300">
+              <div className="space-y-6 text-lg text-gray-700 dark:text-gray-300">
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="h-6 w-6 text-teal-600 dark:text-teal-400 flex-shrink-0 mt-1" />
                   <p>
@@ -323,9 +323,9 @@ export default function LandingPage() {
         </section>
 
         {/* Testimonials */}
-        <section className="bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-gray-800 dark:to-gray-900 py-20">
+        <section className="bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-gray-800 dark:to-gray-900 py-24">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-16">
+            <div className="text-center mb-20">
               <Badge className="mb-4 bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300">
                 نظرات کاربران
               </Badge>
@@ -389,7 +389,7 @@ export default function LandingPage() {
         </section>
 
         {/* CTA */}
-        <section className="container mx-auto px-4 py-20">
+        <section className="container mx-auto px-4 py-24">
           <Card className="bg-gradient-to-r from-teal-500 via-cyan-600 to-teal-500 border-0 text-white overflow-hidden relative">
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIzMCIvPjwvZz48L2c+PC9zdmc+')] opacity-20"></div>
             <CardContent className="pt-12 pb-12 relative z-10">
