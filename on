@@ -1,0 +1,10 @@
+* [33m198ca58[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m fix: resolve TypeScript build errors - update manifest purpose and migrate middleware to proxy
+* [33mb23b917[m fix: resolve TypeScript errors in manifest and migrate middleware to proxy
+* [33md3d37f3[m build
+* [33ma645335[m sitemap
+* [33me182e59[m حذف پوشه utmkit تکراری
+* [33m0dfbd88[m افزودن تنظیمات SEO و بهینه‌سازی عملکرد در پیکربندی Next.js، به‌روزرسانی متادیتا و ساختار صفحه لندینگ با استفاده از داده‌های ساختاریافته و بهبود رابط کاربری.
+* [33m751a014[m افزایش فاصله‌ها در صفحه لندینگ برای بهبود خوانایی
+* [33mc658f8b[m v1
+* [33me5e2f25[m Enhance admin and user pages by adding ISO string formatting for date fields and including additional ticket details. Updated user and ticket data structures for improved consistency and usability.
+* [33m544982e[m Initial implementation of the project structure and basic functionality.
