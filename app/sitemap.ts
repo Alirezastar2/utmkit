@@ -3,47 +3,55 @@ import { siteConfig } from '@/lib/seo'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = siteConfig.url
+  const now = new Date()
 
-  // صفحات استاتیک اصلی
-  const staticPages = [
+  // صفحات اصلی و مهم (Priority بالا)
+  const mainPages = [
     {
       url: baseUrl,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'daily' as const,
       priority: 1.0,
     },
     {
       url: `${baseUrl}/pricing`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'weekly' as const,
       priority: 0.9,
     },
     {
       url: `${baseUrl}/help`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     },
     {
       url: `${baseUrl}/api-docs`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     },
+  ]
+
+  // صفحات احراز هویت (Priority متوسط)
+  const authPages = [
     {
       url: `${baseUrl}/auth/register`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'monthly' as const,
       priority: 0.6,
     },
     {
       url: `${baseUrl}/auth/login`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'monthly' as const,
       priority: 0.5,
     },
   ]
 
-  return staticPages
+  // ترکیب تمام صفحات
+  const allPages = [...mainPages, ...authPages]
+
+  return allPages
 }
 
