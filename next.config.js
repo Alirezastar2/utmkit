@@ -48,10 +48,6 @@ const nextConfig = {
     minimumCacheTTL: 60,
   },
   
-  // Experimental features برای performance
-  experimental: {
-    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
-  },
 }
 
 module.exports = nextConfig
