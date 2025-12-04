@@ -3,9 +3,20 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
 import { prisma } from './prisma'
 
-// بررسی وجود NEXTAUTH_SECRET
-if (!process.env.NEXTAUTH_SECRET) {
-  throw new Error('NEXTAUTH_SECRET is not set in environment variables')
+// بررسی وجود NEXTAUTH_SECRET فقط در runtime (نه در build time)
+// در Next.js، متغیرهای محیطی در build time ممکن است در دسترس نباشند
+const getAuthSecret = () => {
+  if (typeof window !== 'undefined') {
+    // در client-side اجرا نمی‌شود
+    return undefined
+  }
+  
+  const secret = process.env.NEXTAUTH_SECRET
+  if (!secret && process.env.NODE_ENV === 'production') {
+    console.error('⚠️  NEXTAUTH_SECRET is not set in environment variables')
+    console.error('⚠️  This will cause authentication to fail in production')
+  }
+  return secret
 }
 
 export const authOptions: NextAuthOptions = {
@@ -79,7 +90,7 @@ export const authOptions: NextAuthOptions = {
       return session
     },
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: getAuthSecret(),
   debug: process.env.NODE_ENV === 'development', // فعال‌سازی debug در development
 }
 
