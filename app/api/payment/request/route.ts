@@ -19,6 +19,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // بررسی وجود کاربر در دیتابیس
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { id: true },
+    })
+
+    if (!user) {
+      console.error('User not found in database:', session.user.id)
+      return NextResponse.json(
+        { error: 'کاربر یافت نشد. لطفاً دوباره وارد شوید.' },
+        { status: 401 }
+      )
+    }
+
     const body = await request.json()
     const { plan } = body
 
@@ -38,7 +52,7 @@ export async function POST(request: Request) {
     // Create payment record
     const payment = await prisma.payment.create({
       data: {
-        userId: session.user.id,
+        userId: user.id,
         plan,
         amount,
         invoiceId,
