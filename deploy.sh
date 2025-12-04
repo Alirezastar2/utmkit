@@ -17,8 +17,11 @@ if [ ! -f .env ]; then
 DATABASE_URL="file:./dev.db"
 
 # NextAuth
-NEXTAUTH_URL="http://185.213.165.225:3000"
+NEXTAUTH_URL="https://utmkit.ir"
 NEXTAUTH_SECRET="$(openssl rand -base64 32)"
+
+# Payment Gateway
+PAYMENT_CALLBACK_URL="https://utmkit.ir/payment/callback"
 
 # Environment
 NODE_ENV="production"
