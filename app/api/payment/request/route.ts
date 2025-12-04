@@ -59,8 +59,13 @@ export async function POST(request: Request) {
       name: session.user.name || undefined,
     }
     
-    // Log برای دیباگ (در production حذف شود)
-    console.log('Payment callback URL:', CALLBACK_URL)
+    // Log برای دیباگ
+    console.log('Payment request to NovinoPay:', {
+      callback_url: CALLBACK_URL,
+      amount,
+      invoice_id: invoiceId,
+      merchant_id: NOVINO_MERCHANT_ID,
+    })
 
     // Send request to NovinoPay
     const response = await fetch(NOVINO_API_URL, {
@@ -72,6 +77,13 @@ export async function POST(request: Request) {
     })
 
     const data = await response.json()
+    
+    // Log response برای دیباگ
+    console.log('NovinoPay response:', {
+      status: data.status,
+      message: data.message,
+      hasData: !!data.data,
+    })
 
     if (data.status === '100' && data.data) {
       // Update payment with authority and trans_id
@@ -97,10 +109,23 @@ export async function POST(request: Request) {
         data: { status: 'FAILED' },
       })
 
+      // پیام خطای دقیق‌تر بر اساس status code
+      let errorMessage = data.message || 'خطا در ایجاد تراکنش'
+      
+      // اگر خطای callback URL است
+      if (data.status === '400' || data.message?.includes('callback') || data.message?.includes('آدرس بازگشتی')) {
+        errorMessage = 'آدرس بازگشتی با آدرس درگاه پرداخت ثبت شده همخوانی ندارد. لطفاً با پشتیبانی تماس بگیرید.'
+      }
+
       return NextResponse.json(
         {
-          error: data.message || 'خطا در ایجاد تراکنش',
+          error: errorMessage,
           status: data.status,
+          details: process.env.NODE_ENV === 'development' ? {
+            callback_url: CALLBACK_URL,
+            merchant_id: NOVINO_MERCHANT_ID,
+            novino_response: data,
+          } : undefined,
         },
         { status: 400 }
       )
