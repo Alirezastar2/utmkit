@@ -51,11 +51,20 @@ pm2 delete utmkit || true
 
 # 7. اجرای پروژه با PM2
 echo "▶️ اجرای پروژه با PM2..."
-# استفاده از dotenv-cli برای خواندن .env یا استفاده از --update-env
 pm2 stop utmkit || true
 pm2 delete utmkit || true
-# استفاده از --update-env برای به‌روزرسانی متغیرهای محیطی
-pm2 start npm --name "utmkit" -- start --update-env
+
+# استفاده از ecosystem.config.js یا راه‌اندازی با dotenv-cli
+if [ -f ecosystem.config.js ]; then
+    echo "📋 استفاده از ecosystem.config.js..."
+    pm2 start ecosystem.config.js
+else
+    echo "📋 استفاده از dotenv-cli..."
+    # نصب dotenv-cli اگر وجود ندارد
+    npm install -g dotenv-cli 2>/dev/null || npm install dotenv-cli --save-dev
+    pm2 start "dotenv -e .env -- npm start" --name "utmkit"
+fi
+
 pm2 save
 
 # 8. نمایش وضعیت
