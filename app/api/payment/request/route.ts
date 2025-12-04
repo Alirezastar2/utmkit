@@ -162,7 +162,11 @@ export async function POST(request: Request) {
       let data: any
       try {
         const responseText = await response.text()
-        console.log('NovinoPay raw response:', responseText)
+        console.log('NovinoPay raw response:', {
+          statusCode: response.status,
+          statusText: response.statusText,
+          responseText: responseText,
+        })
         data = JSON.parse(responseText)
       } catch (parseError: any) {
         console.error('Parse error for NovinoPay response:', parseError)
@@ -178,14 +182,38 @@ export async function POST(request: Request) {
       
       // Log response برای دیباگ
       console.log('NovinoPay response:', {
-        status: data.status,
+        httpStatus: response.status,
+        httpStatusText: response.statusText,
+        novinoStatus: data.status,
         message: data.message,
         hasData: !!data.data,
+        errors: data.errors,
         fullResponse: data,
       })
       
       // Log callback URL که ارسال شده
       console.log('Callback URL sent to NovinoPay:', CALLBACK_URL)
+
+      // Check if HTTP response is not OK
+      if (!response.ok) {
+        console.error('NovinoPay HTTP error:', {
+          status: response.status,
+          statusText: response.statusText,
+          data: data,
+        })
+        await prisma.payment.update({
+          where: { id: payment.id },
+          data: { status: 'FAILED' },
+        })
+        return NextResponse.json(
+          {
+            error: data.message || 'خطا در ارتباط با درگاه پرداخت',
+            status: data.status,
+            errors: data.errors,
+          },
+          { status: response.status }
+        )
+      }
 
       if (data.status === '100' && data.data) {
         // Update payment with authority and trans_id
@@ -234,11 +262,22 @@ export async function POST(request: Request) {
           errorMessage = 'آدرس بازگشتی با آدرس درگاه پرداخت ثبت شده همخوانی ندارد. لطفاً با پشتیبانی تماس بگیرید.'
         }
 
+        // Log error details
+        console.error('NovinoPay error response:', {
+          status: data.status,
+          message: data.message,
+          errors: data.errors,
+          callback_url: CALLBACK_URL,
+          merchant_id: NOVINO_MERCHANT_ID.substring(0, 10) + '...',
+          fullResponse: data,
+        })
+
         return NextResponse.json(
           {
             error: errorMessage,
             status: data.status,
             message: data.message,
+            errors: data.errors,
             details: process.env.NODE_ENV === 'development' ? {
               callback_url: CALLBACK_URL,
               merchant_id_set: !!NOVINO_MERCHANT_ID && NOVINO_MERCHANT_ID !== '',

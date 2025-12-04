@@ -38,6 +38,27 @@ function PaymentContent() {
 
       const data = await response.json()
 
+      if (!response.ok) {
+        // Log error for debugging
+        console.error('Payment request error:', {
+          status: response.status,
+          error: data.error,
+          message: data.message,
+          statusCode: data.status,
+          errors: data.errors,
+          details: data.details,
+        })
+        
+        // Show detailed error message
+        const errorMessage = data.error || data.message || 'خطا در ایجاد درخواست پرداخت'
+        toast.error(errorMessage, {
+          description: data.errors ? JSON.stringify(data.errors) : undefined,
+          duration: 5000,
+        })
+        setLoading(false)
+        return
+      }
+
       if (data.success && data.payment_url) {
         // Redirect to payment gateway
         window.location.href = data.payment_url
