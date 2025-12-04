@@ -105,7 +105,11 @@ export async function POST(request: Request) {
         status: data.status,
         message: data.message,
         hasData: !!data.data,
+        fullResponse: data,
       })
+      
+      // Log callback URL که ارسال شده
+      console.log('Callback URL sent to NovinoPay:', CALLBACK_URL)
 
       if (data.status === '100' && data.data) {
         // Update payment with authority and trans_id

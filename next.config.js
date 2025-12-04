@@ -40,6 +40,20 @@ const nextConfig = {
     ]
   },
   
+  // Rewrites برای icon routes
+  async rewrites() {
+    return [
+      {
+        source: '/icon-192x192.png',
+        destination: '/api/icons/192',
+      },
+      {
+        source: '/icon-512x512.png',
+        destination: '/api/icons/512',
+      },
+    ]
+  },
+  
   // Images optimization
   images: {
     formats: ['image/avif', 'image/webp'],
