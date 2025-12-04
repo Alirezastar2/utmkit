@@ -46,20 +46,36 @@ npm install
 echo "🔧 تولید Prisma Client..."
 npx prisma generate
 
-# 4. اجرای Migration
+# 4. تنظیم Permissions دیتابیس
+echo "🔐 تنظیم Permissions دیتابیس..."
+if [ -f dev.db ]; then
+    chmod 666 dev.db || true
+    chmod 666 dev.db-wal || true 2>/dev/null || true
+    chmod 666 dev.db-shm || true 2>/dev/null || true
+fi
+
+# 5. اجرای Migration
 echo "🗄️ اجرای Migration..."
 npx prisma migrate deploy || npx prisma migrate dev --name init
 
-# 5. بیلد پروژه
+# 6. تنظیم مجدد Permissions بعد از Migration
+echo "🔐 تنظیم مجدد Permissions دیتابیس..."
+if [ -f dev.db ]; then
+    chmod 666 dev.db || true
+    chmod 666 dev.db-wal || true 2>/dev/null || true
+    chmod 666 dev.db-shm || true 2>/dev/null || true
+fi
+
+# 7. بیلد پروژه
 echo "🏗️ بیلد پروژه..."
 npm run build
 
-# 6. توقف PM2 قبلی (اگر در حال اجرا است)
+# 8. توقف PM2 قبلی (اگر در حال اجرا است)
 echo "🛑 توقف PM2 قبلی..."
 pm2 stop utmkit || true
 pm2 delete utmkit || true
 
-# 7. اجرای پروژه با PM2
+# 9. اجرای پروژه با PM2
 echo "▶️ اجرای پروژه با PM2..."
 pm2 stop utmkit || true
 pm2 delete utmkit || true
@@ -77,7 +93,15 @@ fi
 
 pm2 save
 
-# 8. نمایش وضعیت
+# 10. تنظیم نهایی Permissions دیتابیس
+echo "🔐 تنظیم نهایی Permissions دیتابیس..."
+if [ -f dev.db ]; then
+    chmod 666 dev.db || true
+    chmod 666 dev.db-wal || true 2>/dev/null || true
+    chmod 666 dev.db-shm || true 2>/dev/null || true
+fi
+
+# 11. نمایش وضعیت
 echo "📊 وضعیت PM2:"
 pm2 status
 
