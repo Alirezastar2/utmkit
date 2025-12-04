@@ -1,18 +1,11 @@
 import { ImageResponse } from 'next/og'
+import { NextRequest } from 'next/server'
 
 // Route segment config
 export const runtime = 'edge'
 
-// Image metadata
-export const size = {
-  width: 192,
-  height: 192,
-}
-
-export const contentType = 'image/png'
-
 // Image generation
-export default function Icon192() {
+export async function GET(request: NextRequest) {
   return new ImageResponse(
     (
       <div
@@ -33,7 +26,8 @@ export default function Icon192() {
       </div>
     ),
     {
-      ...size,
+      width: 192,
+      height: 192,
     }
   )
 }
