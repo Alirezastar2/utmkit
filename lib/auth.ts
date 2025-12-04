@@ -75,5 +75,6 @@ export const authOptions: NextAuthOptions = {
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
+  trustHost: true, // برای تشخیص خودکار URL در production
 }
 
