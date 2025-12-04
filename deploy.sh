@@ -27,6 +27,7 @@ NEXTAUTH_URL="https://utmkit.ir"
 NEXTAUTH_SECRET="$(openssl rand -base64 32)"
 
 # Payment Gateway
+NOVINO_MERCHANT_ID="73D08668-BE7A-4B26-854C-14968226A2C9"
 PAYMENT_CALLBACK_URL="https://utmkit.ir/payment/callback"
 
 # Environment

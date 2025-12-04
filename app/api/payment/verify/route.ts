@@ -3,8 +3,8 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
-const NOVINPAL_API_KEY = process.env.NOVINPAL_API_KEY || process.env.NOVINO_MERCHANT_ID || ''
-const NOVINPAL_VERIFY_URL = 'https://api.novinpal.ir/invoice/verify'
+const NOVINO_MERCHANT_ID = process.env.NOVINO_MERCHANT_ID || '73D08668-BE7A-4B26-854C-14968226A2C9'
+const NOVINO_VERIFY_URL = 'https://api.novinopay.com/payment/ipg/v2/verification'
 
 export async function POST(request: Request) {
   try {
@@ -15,19 +15,19 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { refId } = body
+    const { authority, amount } = body
 
-    if (!refId) {
+    if (!authority || !amount) {
       return NextResponse.json(
-        { error: 'refId is required' },
+        { error: 'Authority and amount are required' },
         { status: 400 }
       )
     }
 
-    // Find payment by refId
+    // Find payment by authority
     const payment = await prisma.payment.findFirst({
       where: {
-        refId: refId.toString(),
+        authority,
         userId: session.user.id,
         status: { in: ['PENDING', 'SUCCESS'] },
       },
@@ -49,33 +49,38 @@ export async function POST(request: Request) {
       })
     }
 
-    // Verify with NovinPal
-    // NovinPal از Form-Data استفاده می‌کند
-    const formData = new URLSearchParams()
-    formData.append('api_key', NOVINPAL_API_KEY)
-    formData.append('ref_id', refId.toString())
+    // Verify with NovinoPay
+    // NovinoPay از JSON استفاده می‌کند
+    const verifyRequest = {
+      merchant_id: NOVINO_MERCHANT_ID,
+      amount: amount.toString(),
+      authority: authority,
+    }
 
-    const response = await fetch(NOVINPAL_VERIFY_URL, {
+    const response = await fetch(NOVINO_VERIFY_URL, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': 'application/json',
       },
-      body: formData.toString(),
+      body: JSON.stringify(verifyRequest),
     })
 
     const verifyData = await response.json()
 
-    if (verifyData.status === 1) {
+    if (verifyData.status === '100' && verifyData.data) {
       // Update payment
       const updatedPayment = await prisma.payment.update({
         where: { id: payment.id },
         data: {
           status: 'VERIFIED',
-          refId: verifyData.refId?.toString(),
-          cardPan: verifyData.cardNumber,
-          paymentTime: verifyData.paidAt ? new Date(verifyData.paidAt) : null,
+          refId: verifyData.data.ref_id,
+          cardPan: verifyData.data.card_pan,
+          buyerIp: verifyData.data.buyer_ip,
+          paymentTime: verifyData.data.payment_time
+            ? new Date(verifyData.data.payment_time * 1000)
+            : null,
           verifiedAt: new Date(),
-          transId: verifyData.refNumber,
+          transId: verifyData.data.trans_id?.toString(),
         },
       })
 
@@ -106,8 +111,7 @@ export async function POST(request: Request) {
 
       return NextResponse.json(
         {
-          error: verifyData.errorDescription || 'خطا در تایید تراکنش',
-          errorCode: verifyData.errorCode,
+          error: verifyData.message || 'خطا در تایید تراکنش',
           status: verifyData.status,
         },
         { status: 400 }
