@@ -33,6 +33,13 @@ export async function POST(request: Request) {
       )
     }
 
+    // لاگ برای دیباگ Foreign key constraint
+    console.log('Creating payment for user:', {
+      userId: user.id,
+      sessionUserId: session.user.id,
+      userIdMatch: user.id === session.user.id,
+    })
+
     const body = await request.json()
     const { plan } = body
 
@@ -50,104 +57,144 @@ export async function POST(request: Request) {
     const invoiceId = `INV-${Date.now()}-${Math.random().toString(36).substring(7)}`
 
     // Create payment record
-    const payment = await prisma.payment.create({
-      data: {
-        userId: user.id,
-        plan,
-        amount,
-        invoiceId,
-        status: 'PENDING',
-      },
-    })
-
-    // Prepare request to NovinoPay
-    // مهم: callback_url باید دقیقاً همان آدرسی باشد که در پنل NovinoPay ثبت شده است
-    const novinoRequest = {
-      merchant_id: NOVINO_MERCHANT_ID,
-      amount: amount,
-      callback_url: CALLBACK_URL,
-      callback_method: 'GET',
-      invoice_id: invoiceId,
-      description: `ارتقا به پلن ${planConfig.nameFa}`,
-      email: session.user.email || undefined,
-      name: session.user.name || undefined,
-    }
-    
-    // Log برای دیباگ
-    console.log('Payment request to NovinoPay:', {
-      callback_url: CALLBACK_URL,
-      amount,
-      invoice_id: invoiceId,
-      merchant_id: NOVINO_MERCHANT_ID,
-    })
-
-    // Send request to NovinoPay
-    const response = await fetch(NOVINO_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(novinoRequest),
-    })
-
-    const data = await response.json()
-    
-    // Log response برای دیباگ
-    console.log('NovinoPay response:', {
-      status: data.status,
-      message: data.message,
-      hasData: !!data.data,
-    })
-
-    if (data.status === '100' && data.data) {
-      // Update payment with authority and trans_id
-      await prisma.payment.update({
-        where: { id: payment.id },
+    try {
+      const payment = await prisma.payment.create({
         data: {
-          authority: data.data.authority,
-          transId: data.data.trans_id?.toString(),
+          userId: user.id,
+          plan,
+          amount,
+          invoiceId,
           status: 'PENDING',
         },
       })
 
-      return NextResponse.json({
-        success: true,
-        payment_url: data.data.payment_url,
-        authority: data.data.authority,
-        payment_id: payment.id,
-      })
-    } else {
-      // Update payment status to failed
-      await prisma.payment.update({
-        where: { id: payment.id },
-        data: { status: 'FAILED' },
-      })
-
-      // پیام خطای دقیق‌تر بر اساس status code
-      let errorMessage = data.message || 'خطا در ایجاد تراکنش'
-      
-      // اگر خطای callback URL است
-      if (data.status === '400' || data.message?.includes('callback') || data.message?.includes('آدرس بازگشتی')) {
-        errorMessage = 'آدرس بازگشتی با آدرس درگاه پرداخت ثبت شده همخوانی ندارد. لطفاً با پشتیبانی تماس بگیرید.'
+      // Prepare request to NovinoPay
+      // مهم: callback_url باید دقیقاً همان آدرسی باشد که در پنل NovinoPay ثبت شده است
+      const novinoRequest = {
+        merchant_id: NOVINO_MERCHANT_ID,
+        amount: amount,
+        callback_url: CALLBACK_URL,
+        callback_method: 'GET',
+        invoice_id: invoiceId,
+        description: `ارتقا به پلن ${planConfig.nameFa}`,
+        email: session.user.email || undefined,
+        name: session.user.name || undefined,
       }
+      
+      // Log برای دیباگ
+      console.log('Payment request to NovinoPay:', {
+        callback_url: CALLBACK_URL,
+        amount,
+        invoice_id: invoiceId,
+        merchant_id: NOVINO_MERCHANT_ID,
+      })
 
-      return NextResponse.json(
-        {
-          error: errorMessage,
-          status: data.status,
-          details: process.env.NODE_ENV === 'development' ? {
-            callback_url: CALLBACK_URL,
-            merchant_id: NOVINO_MERCHANT_ID,
-            novino_response: data,
-          } : undefined,
+      // Send request to NovinoPay
+      const response = await fetch(NOVINO_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        { status: 400 }
-      )
+        body: JSON.stringify(novinoRequest),
+      })
+
+      const data = await response.json()
+      
+      // Log response برای دیباگ
+      console.log('NovinoPay response:', {
+        status: data.status,
+        message: data.message,
+        hasData: !!data.data,
+      })
+
+      if (data.status === '100' && data.data) {
+        // Update payment with authority and trans_id
+        await prisma.payment.update({
+          where: { id: payment.id },
+          data: {
+            authority: data.data.authority,
+            transId: data.data.trans_id?.toString(),
+            status: 'PENDING',
+          },
+        })
+
+        return NextResponse.json({
+          success: true,
+          payment_url: data.data.payment_url,
+          authority: data.data.authority,
+          payment_id: payment.id,
+        })
+      } else {
+        // Update payment status to failed
+        await prisma.payment.update({
+          where: { id: payment.id },
+          data: { status: 'FAILED' },
+        })
+
+        // پیام خطای دقیق‌تر بر اساس status code
+        let errorMessage = data.message || 'خطا در ایجاد تراکنش'
+        
+        // اگر خطای callback URL است
+        if (data.status === '400' || data.message?.includes('callback') || data.message?.includes('آدرس بازگشتی')) {
+          errorMessage = 'آدرس بازگشتی با آدرس درگاه پرداخت ثبت شده همخوانی ندارد. لطفاً با پشتیبانی تماس بگیرید.'
+        }
+
+        return NextResponse.json(
+          {
+            error: errorMessage,
+            status: data.status,
+            details: process.env.NODE_ENV === 'development' ? {
+              callback_url: CALLBACK_URL,
+              merchant_id: NOVINO_MERCHANT_ID,
+              novino_response: data,
+            } : undefined,
+          },
+          { status: 400 }
+        )
+      }
+    } catch (createError: any) {
+      // اگر خطای Foreign key constraint است، اطلاعات بیشتری لاگ کن
+      if (createError.code === 'P2003' || createError.message?.includes('Foreign key constraint')) {
+        console.error('Foreign key constraint error:', {
+          code: createError.code,
+          message: createError.message,
+          meta: createError.meta,
+          userId: user.id,
+          sessionUserId: session.user.id,
+        })
+        
+        // بررسی مجدد وجود کاربر
+        const userCheck = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { id: true, email: true },
+        })
+        
+        console.error('User verification after FK error:', {
+          userExists: !!userCheck,
+          userId: user.id,
+        })
+      }
+      throw createError
     }
   } catch (error: any) {
     console.error('Payment request error:', error)
+    
+    // پیام خطای دقیق‌تر
+    let errorMessage = 'خطا در ایجاد درخواست پرداخت'
+    if (error.code === 'P2003') {
+      errorMessage = 'خطا در ارتباط با دیتابیس. لطفاً دوباره وارد شوید و مجدد تلاش کنید.'
+    }
+    
     return NextResponse.json(
-      { error: 'خطا در ایجاد درخواست پرداخت' },
+      { 
+        error: errorMessage,
+        ...(process.env.NODE_ENV === 'development' && {
+          details: {
+            code: error.code,
+            message: error.message,
+          }
+        })
+      },
       { status: 500 }
     )
   }
