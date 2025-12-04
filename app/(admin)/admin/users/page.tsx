@@ -92,7 +92,8 @@ async function getUsers(searchParams: any) {
 export default async function AdminUsersPage({
   searchParams,
 }: {
-  searchParams: { page?: string; search?: string; role?: string; plan?: string }
+  // از any استفاده می‌کنیم تا با تغییرات تایپ PageProps در نسخه‌های جدید Next سازگار بماند
+  searchParams: any
 }) {
   const session = await getServerSession(authOptions)
 
