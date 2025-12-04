@@ -125,7 +125,7 @@ function PaymentContent() {
 
           <div className="pt-4 border-t">
             <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-              با کلیک روی دکمه پرداخت، به درگاه امن نوین‌پال هدایت خواهید شد.
+              با کلیک روی دکمه پرداخت، به درگاه امن نوینو پی هدایت خواهید شد.
               <br />
               پرداخت شما با بالاترین استانداردهای امنیتی انجام می‌شود.
             </p>

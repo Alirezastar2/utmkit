@@ -12,21 +12,18 @@ export async function GET(request: Request) {
     }
 
     const { searchParams } = new URL(request.url)
-    const refId = searchParams.get('refId') || searchParams.get('authority') // برای سازگاری با کد قدیمی
+    const authority = searchParams.get('authority')
 
-    if (!refId) {
+    if (!authority) {
       return NextResponse.json(
-        { error: 'refId is required' },
+        { error: 'Authority is required' },
         { status: 400 }
       )
     }
 
     const payment = await prisma.payment.findFirst({
       where: {
-        OR: [
-          { refId },
-          { authority: refId }, // برای سازگاری با کد قدیمی
-        ],
+        authority,
         userId: session.user.id,
       },
     })
