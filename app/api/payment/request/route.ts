@@ -73,6 +73,23 @@ export async function POST(request: Request) {
     const planConfig = PLANS[plan as 'BASIC' | 'PRO']
     const amount = planConfig.price
 
+    // بررسی API key
+    if (!NOVINPAL_API_KEY || NOVINPAL_API_KEY === '') {
+      console.error('NOVINPAL_API_KEY is not set')
+      return NextResponse.json(
+        { error: 'تنظیمات درگاه پرداخت کامل نیست. لطفاً با پشتیبانی تماس بگیرید.' },
+        { status: 500 }
+      )
+    }
+
+    // بررسی مبلغ (NovinPal حداقل 10000 ریال نیاز دارد)
+    if (amount < 10000) {
+      return NextResponse.json(
+        { error: 'مبلغ پرداخت باید حداقل ۱۰,۰۰۰ ریال باشد.' },
+        { status: 400 }
+      )
+    }
+
     // Generate invoice ID
     const invoiceId = `INV-${Date.now()}-${Math.random().toString(36).substring(7)}`
 
@@ -162,10 +179,31 @@ export async function POST(request: Request) {
         // پیام خطای دقیق‌تر بر اساس error code
         let errorMessage = data.errorDescription || 'خطا در ایجاد تراکنش'
         
-        // اگر خطای return URL است (errorCode 103)
-        if (data.errorCode === 103 || 
-            data.errorDescription?.includes('بازگشتی') ||
-            data.errorDescription?.includes('return url')) {
+        // پیام‌های خطای خاص بر اساس errorCode
+        const errorMessages: Record<number, string> = {
+          101: 'آی پی سایت پذیرنده مجاز نیست',
+          102: 'ترمینال بلاک شده است',
+          103: 'آدرس بازگشتی با آدرس درگاه پرداخت ثبت شده همخوانی ندارد. لطفاً با پشتیبانی تماس بگیرید.',
+          104: 'خطای PSP',
+          107: 'PSP یافت نشد',
+          108: 'خطای سرور',
+          110: 'مبلغ اشتباه وارد شده یا کمتر از 10000 ریال است',
+          111: 'کلید API اشتباه است',
+          112: 'پذیرنده غیرفعال است',
+          115: 'ترمینال تأیید نشده است',
+          116: 'ترمینال غیرفعال است',
+          117: 'ترمینال رد شده است',
+          118: 'ترمینال تعلیق شده است',
+          119: 'ترمینالی تعریف نشده است',
+          120: 'حساب کاربری پذیرنده به حالت تعلیق درآمده است',
+          121: 'حساب کاربری پذیرنده تأیید نشده است',
+          122: 'حساب کاربری پذیرنده یافت نشد',
+        }
+
+        if (data.errorCode && errorMessages[data.errorCode]) {
+          errorMessage = errorMessages[data.errorCode]
+        } else if (data.errorDescription?.includes('بازگشتی') || 
+                   data.errorDescription?.includes('return url')) {
           errorMessage = 'آدرس بازگشتی با آدرس درگاه پرداخت ثبت شده همخوانی ندارد. لطفاً با پشتیبانی تماس بگیرید.'
         }
 
@@ -176,7 +214,7 @@ export async function POST(request: Request) {
             errorDescription: data.errorDescription,
             details: process.env.NODE_ENV === 'development' ? {
               return_url: RETURN_URL,
-              api_key: NOVINPAL_API_KEY.substring(0, 10) + '...',
+              api_key_set: !!NOVINPAL_API_KEY && NOVINPAL_API_KEY !== '',
               novinpal_response: data,
             } : undefined,
           },

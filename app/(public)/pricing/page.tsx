@@ -205,7 +205,7 @@ export default function PricingPage() {
             </CardHeader>
             <CardContent>
               <p className="text-gray-600 dark:text-gray-400">
-                بله، تمام پرداخت‌ها از طریق درگاه امن نوینو پی انجام می‌شود و اطلاعات کارت شما ذخیره نمی‌شود.
+                بله، تمام پرداخت‌ها از طریق درگاه امن نوین‌پال انجام می‌شود و اطلاعات کارت شما ذخیره نمی‌شود.
               </p>
             </CardContent>
           </Card>
