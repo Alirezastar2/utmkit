@@ -4,12 +4,13 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { PLANS } from '@/lib/plans'
 
-const NOVINO_MERCHANT_ID = process.env.NOVINO_MERCHANT_ID || '73D08668-BE7A-4B26-854C-14968226A2C9'
-const NOVINO_API_URL = 'https://api.novinopay.com/payment/ipg/v2/request'
-// BASE_URL باید دقیقاً همان آدرسی باشد که در پنل NovinoPay ثبت شده است
+const NOVINPAL_API_KEY = process.env.NOVINPAL_API_KEY || process.env.NOVINO_MERCHANT_ID || ''
+const NOVINPAL_REQUEST_URL = 'https://api.novinpal.ir/invoice/request'
+const NOVINPAL_START_URL = 'https://api.novinpal.ir/invoice/start'
+// BASE_URL باید دقیقاً همان آدرسی باشد که در پنل NovinPal ثبت شده است
 const BASE_URL = (process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_BASE_URL || 'https://utmkit.ir').replace(/\/$/, '')
-// CALLBACK_URL می‌تواند از متغیر محیطی خوانده شود یا به صورت خودکار ساخته شود
-const CALLBACK_URL = process.env.PAYMENT_CALLBACK_URL || `${BASE_URL}/payment/callback`
+// RETURN_URL می‌تواند از متغیر محیطی خوانده شود یا به صورت خودکار ساخته شود
+const RETURN_URL = process.env.PAYMENT_CALLBACK_URL || `${BASE_URL}/payment/callback`
 
 export async function POST(request: Request) {
   try {
@@ -87,64 +88,68 @@ export async function POST(request: Request) {
         },
       })
 
-      // Prepare request to NovinoPay
-      // مهم: callback_url باید دقیقاً همان آدرسی باشد که در پنل NovinoPay ثبت شده است
-      const novinoRequest = {
-        merchant_id: NOVINO_MERCHANT_ID,
-        amount: amount,
-        callback_url: CALLBACK_URL,
-        callback_method: 'GET',
-        invoice_id: invoiceId,
-        description: `ارتقا به پلن ${planConfig.nameFa}`,
-        email: session.user.email || undefined,
-        name: session.user.name || undefined,
+      // Prepare request to NovinPal
+      // مهم: return_url باید دقیقاً همان آدرسی باشد که در پنل NovinPal ثبت شده است
+      // NovinPal از Form-Data استفاده می‌کند
+      const formData = new URLSearchParams()
+      formData.append('api_key', NOVINPAL_API_KEY)
+      formData.append('amount', amount.toString())
+      formData.append('return_url', RETURN_URL)
+      formData.append('order_id', invoiceId)
+      formData.append('description', `ارتقا به پلن ${planConfig.nameFa}`)
+      if (session.user.email) {
+        // اگر شماره موبایل در email است، می‌توانیم استفاده کنیم
+        // یا می‌توانیم فیلد mobile را اضافه کنیم
       }
       
       // Log برای دیباگ
-      console.log('Payment request to NovinoPay:', {
-        callback_url: CALLBACK_URL,
+      console.log('Payment request to NovinPal:', {
+        return_url: RETURN_URL,
         amount,
-        invoice_id: invoiceId,
-        merchant_id: NOVINO_MERCHANT_ID,
+        order_id: invoiceId,
+        api_key: NOVINPAL_API_KEY.substring(0, 10) + '...', // فقط برای لاگ
       })
 
-      // Send request to NovinoPay
-      const response = await fetch(NOVINO_API_URL, {
+      // Send request to NovinPal (Form-Data)
+      const response = await fetch(NOVINPAL_REQUEST_URL, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: JSON.stringify(novinoRequest),
+        body: formData.toString(),
       })
 
       const data = await response.json()
       
       // Log response برای دیباگ
-      console.log('NovinoPay response:', {
+      console.log('NovinPal response:', {
         status: data.status,
-        message: data.message,
-        hasData: !!data.data,
+        refId: data.refId,
+        errorCode: data.errorCode,
+        errorDescription: data.errorDescription,
         fullResponse: data,
       })
       
-      // Log callback URL که ارسال شده
-      console.log('Callback URL sent to NovinoPay:', CALLBACK_URL)
+      // Log return URL که ارسال شده
+      console.log('Return URL sent to NovinPal:', RETURN_URL)
 
-      if (data.status === '100' && data.data) {
-        // Update payment with authority and trans_id
+      if (data.status === 1 && data.refId) {
+        // Update payment with refId
         await prisma.payment.update({
           where: { id: payment.id },
           data: {
-            authority: data.data.authority,
-            transId: data.data.trans_id?.toString(),
+            refId: data.refId.toString(),
             status: 'PENDING',
           },
         })
 
+        // NovinPal از start URL استفاده می‌کند
+        const paymentUrl = `${NOVINPAL_START_URL}/${data.refId}`
+
         return NextResponse.json({
           success: true,
-          payment_url: data.data.payment_url,
-          authority: data.data.authority,
+          payment_url: paymentUrl,
+          refId: data.refId,
           payment_id: payment.id,
         })
       } else {
@@ -154,22 +159,25 @@ export async function POST(request: Request) {
           data: { status: 'FAILED' },
         })
 
-        // پیام خطای دقیق‌تر بر اساس status code
-        let errorMessage = data.message || 'خطا در ایجاد تراکنش'
+        // پیام خطای دقیق‌تر بر اساس error code
+        let errorMessage = data.errorDescription || 'خطا در ایجاد تراکنش'
         
-        // اگر خطای callback URL است
-        if (data.status === '400' || data.message?.includes('callback') || data.message?.includes('آدرس بازگشتی')) {
+        // اگر خطای return URL است (errorCode 103)
+        if (data.errorCode === 103 || 
+            data.errorDescription?.includes('بازگشتی') ||
+            data.errorDescription?.includes('return url')) {
           errorMessage = 'آدرس بازگشتی با آدرس درگاه پرداخت ثبت شده همخوانی ندارد. لطفاً با پشتیبانی تماس بگیرید.'
         }
 
         return NextResponse.json(
           {
             error: errorMessage,
-            status: data.status,
+            errorCode: data.errorCode,
+            errorDescription: data.errorDescription,
             details: process.env.NODE_ENV === 'development' ? {
-              callback_url: CALLBACK_URL,
-              merchant_id: NOVINO_MERCHANT_ID,
-              novino_response: data,
+              return_url: RETURN_URL,
+              api_key: NOVINPAL_API_KEY.substring(0, 10) + '...',
+              novinpal_response: data,
             } : undefined,
           },
           { status: 400 }

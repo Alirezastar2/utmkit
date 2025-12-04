@@ -18,33 +18,29 @@ function PaymentCallbackContent() {
 
   useEffect(() => {
     const verifyPayment = async () => {
-      const paymentStatus = searchParams.get('PaymentStatus')
-      const authority = searchParams.get('Authority')
-      const invoiceId = searchParams.get('InvoiceID')
+      // NovinPal پارامترهای refId, success, code, invoiceNumber, amount را ارسال می‌کند
+      const refId = searchParams.get('refId')
+      const success = searchParams.get('success')
+      const code = searchParams.get('code')
+      const invoiceNumber = searchParams.get('invoiceNumber')
+      const amount = searchParams.get('amount')
 
-      if (!paymentStatus || !authority) {
+      if (!refId) {
         setStatus('failed')
         setMessage('اطلاعات پرداخت ناقص است')
         return
       }
 
-      if (paymentStatus === 'NOK') {
+      // success=0 یعنی پرداخت ناموفق
+      if (success === '0') {
         setStatus('failed')
         setMessage('پرداخت ناموفق بود')
         return
       }
 
-      if (paymentStatus === 'OK') {
+      // success=1 و code=100 یعنی پرداخت موفق
+      if (success === '1' && code === '100') {
         try {
-          // Get amount from payment record
-          const paymentResponse = await fetch(`/api/payment/get?authority=${authority}`)
-          if (!paymentResponse.ok) {
-            throw new Error('خطا در دریافت اطلاعات پرداخت')
-          }
-
-          const paymentData = await paymentResponse.json()
-          const amount = paymentData.payment.amount
-
           // Verify payment
           const verifyResponse = await fetch('/api/payment/verify', {
             method: 'POST',
@@ -52,8 +48,7 @@ function PaymentCallbackContent() {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              authority,
-              amount,
+              refId,
             }),
           })
 
@@ -78,6 +73,16 @@ function PaymentCallbackContent() {
           setMessage(error.message || 'خطا در پردازش تراکنش')
           toast.error('خطا در پردازش تراکنش')
         }
+      } else {
+        // سایر کدهای خطا
+        setStatus('failed')
+        const errorMessages: Record<string, string> = {
+          '109': 'تراکنش ناموفق بود',
+          '104': 'خطای PSP',
+          '107': 'PSP یافت نشد',
+          '108': 'خطای سرور',
+        }
+        setMessage(errorMessages[code || ''] || 'پرداخت ناموفق بود')
       }
     }
 

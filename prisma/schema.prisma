@@ -120,11 +120,11 @@ model Payment {
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   plan          String   // FREE, BASIC, PRO
   amount        Int      // Amount in Rials
-  authority     String?  // NovinoPay authority
-  transId       String?  // NovinoPay transaction ID
-  refId         String?  // Bank reference ID
+  authority     String?  // NovinoPay authority (legacy - برای سازگاری)
+  transId       String?  // Transaction ID / RefNumber
+  refId         String?  // NovinPal refId / Bank reference ID
   status        String   @default("PENDING") // PENDING, SUCCESS, FAILED, VERIFIED
-  invoiceId     String?  // Internal invoice ID
+  invoiceId     String?  // Internal invoice ID / order_id
   cardPan       String?  // Masked card number
   buyerIp       String?
   paymentTime   DateTime?
