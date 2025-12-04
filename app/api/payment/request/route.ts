@@ -6,7 +6,10 @@ import { PLANS } from '@/lib/plans'
 
 const NOVINO_MERCHANT_ID = process.env.NOVINO_MERCHANT_ID || '73D08668-BE7A-4B26-854C-14968226A2C9'
 const NOVINO_API_URL = 'https://api.novinopay.com/payment/ipg/v2/request'
-const BASE_URL = process.env.NEXTAUTH_URL || 'https://utmkit.ir'
+// BASE_URL باید دقیقاً همان آدرسی باشد که در پنل NovinoPay ثبت شده است
+const BASE_URL = (process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_BASE_URL || 'https://utmkit.ir').replace(/\/$/, '')
+// CALLBACK_URL می‌تواند از متغیر محیطی خوانده شود یا به صورت خودکار ساخته شود
+const CALLBACK_URL = process.env.PAYMENT_CALLBACK_URL || `${BASE_URL}/payment/callback`
 
 export async function POST(request: Request) {
   try {
@@ -44,16 +47,20 @@ export async function POST(request: Request) {
     })
 
     // Prepare request to NovinoPay
+    // مهم: callback_url باید دقیقاً همان آدرسی باشد که در پنل NovinoPay ثبت شده است
     const novinoRequest = {
       merchant_id: NOVINO_MERCHANT_ID,
       amount: amount,
-      callback_url: `${BASE_URL}/payment/callback`,
+      callback_url: CALLBACK_URL,
       callback_method: 'GET',
       invoice_id: invoiceId,
       description: `ارتقا به پلن ${planConfig.nameFa}`,
       email: session.user.email || undefined,
       name: session.user.name || undefined,
     }
+    
+    // Log برای دیباگ (در production حذف شود)
+    console.log('Payment callback URL:', CALLBACK_URL)
 
     // Send request to NovinoPay
     const response = await fetch(NOVINO_API_URL, {
