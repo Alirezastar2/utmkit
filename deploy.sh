@@ -51,7 +51,11 @@ pm2 delete utmkit || true
 
 # 7. اجرای پروژه با PM2
 echo "▶️ اجرای پروژه با PM2..."
-pm2 start npm --name "utmkit" -- start
+# استفاده از dotenv-cli برای خواندن .env یا استفاده از --update-env
+pm2 stop utmkit || true
+pm2 delete utmkit || true
+# استفاده از --update-env برای به‌روزرسانی متغیرهای محیطی
+pm2 start npm --name "utmkit" -- start --update-env
 pm2 save
 
 # 8. نمایش وضعیت
