@@ -14,7 +14,7 @@ if [ ! -f .env ]; then
     echo "📝 ایجاد فایل .env..."
     cat > .env << EOF
 # Database
-DATABASE_URL="file:./prisma/dev.db"
+DATABASE_URL="file:./dev.db"
 
 # NextAuth
 NEXTAUTH_URL="http://185.213.165.225:3000"
