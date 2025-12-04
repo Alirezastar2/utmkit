@@ -22,11 +22,14 @@ export async function POST(request: Request) {
     // بررسی وجود کاربر در دیتابیس
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { id: true },
+      select: { id: true, email: true },
     })
 
     if (!user) {
-      console.error('User not found in database:', session.user.id)
+      console.error('User not found in database:', {
+        sessionUserId: session.user.id,
+        sessionUserEmail: session.user.email,
+      })
       return NextResponse.json(
         { error: 'کاربر یافت نشد. لطفاً دوباره وارد شوید.' },
         { status: 401 }
@@ -36,9 +39,25 @@ export async function POST(request: Request) {
     // لاگ برای دیباگ Foreign key constraint
     console.log('Creating payment for user:', {
       userId: user.id,
+      userEmail: user.email,
       sessionUserId: session.user.id,
+      sessionUserEmail: session.user.email,
       userIdMatch: user.id === session.user.id,
     })
+    
+    // بررسی مجدد وجود user قبل از ایجاد payment
+    const userExists = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { id: true },
+    })
+    
+    if (!userExists) {
+      console.error('User disappeared from database before payment creation:', user.id)
+      return NextResponse.json(
+        { error: 'خطا در ارتباط با دیتابیس. لطفاً دوباره تلاش کنید.' },
+        { status: 500 }
+      )
+    }
 
     const body = await request.json()
     const { plan } = body

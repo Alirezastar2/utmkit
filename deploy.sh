@@ -9,6 +9,12 @@ echo "🚀 شروع Deployment..."
 
 cd /root/utmkit
 
+# 0. مدیریت تغییرات محلی قبل از pull
+echo "🔄 مدیریت تغییرات محلی..."
+git stash || true
+git fetch origin
+git reset --hard origin/main || git reset --hard origin/master
+
 # 1. ایجاد فایل .env (اگر وجود ندارد)
 if [ ! -f .env ]; then
     echo "📝 ایجاد فایل .env..."
