@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
-const NOVINO_MERCHANT_ID = process.env.NOVINO_MERCHANT_ID || '73D08668-BE7A-4B26-854C-14968226A2C9'
+const NOVINO_MERCHANT_ID = process.env.NOVINO_MERCHANT_ID || '53D3AB9D-B6DB-4C07-A96E-C77CB6201E75'
 const NOVINO_VERIFY_URL = 'https://api.novinopay.com/payment/ipg/v2/verification'
 
 export async function POST(request: Request) {

@@ -4,7 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { PLANS } from '@/lib/plans'
 
-const NOVINO_MERCHANT_ID = process.env.NOVINO_MERCHANT_ID || '73D08668-BE7A-4B26-854C-14968226A2C9'
+const NOVINO_MERCHANT_ID = process.env.NOVINO_MERCHANT_ID || '53D3AB9D-B6DB-4C07-A96E-C77CB6201E75'
 const NOVINO_REQUEST_URL = 'https://api.novinopay.com/payment/ipg/v2/request'
 // BASE_URL باید دقیقاً همان آدرسی باشد که در پنل NovinoPay ثبت شده است
 const BASE_URL = (process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_BASE_URL || 'https://utmkit.ir').replace(/\/$/, '')
