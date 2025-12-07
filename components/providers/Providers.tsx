@@ -3,6 +3,7 @@
 import { SessionProvider } from 'next-auth/react'
 import { ThemeProvider } from '@/components/theme/ThemeProvider'
 import GlobalNavigation from '@/components/layout/GlobalNavigation'
+import FloatingChatButton from '@/components/chat/FloatingChatButton'
 import { usePathname } from 'next/navigation'
 
 export default function Providers({
@@ -32,6 +33,7 @@ export default function Providers({
             children
           )}
         </div>
+        <FloatingChatButton />
       </ThemeProvider>
     </SessionProvider>
   )

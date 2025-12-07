@@ -36,7 +36,15 @@ function PaymentContent() {
         body: JSON.stringify({ plan }),
       })
 
-      const data = await response.json()
+      let data: any
+      try {
+        data = await response.json()
+      } catch (parseError) {
+        console.error('Error parsing response:', parseError)
+        toast.error('خطا در پردازش پاسخ سرور')
+        setLoading(false)
+        return
+      }
 
       if (!response.ok) {
         // Log error for debugging
@@ -67,7 +75,8 @@ function PaymentContent() {
         setLoading(false)
       }
     } catch (error: any) {
-      toast.error('خطا در ایجاد درخواست پرداخت')
+      console.error('Payment request catch error:', error)
+      toast.error(error.message || 'خطا در ایجاد درخواست پرداخت')
       setLoading(false)
     }
   }

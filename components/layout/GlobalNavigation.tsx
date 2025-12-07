@@ -15,7 +15,10 @@ import {
   MessageSquare,
   Home,
   DollarSign,
-  HelpCircle
+  HelpCircle,
+  ArrowUp,
+  Crown,
+  Bot
 } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -28,6 +31,7 @@ const dashboardNavigation = [
   { name: 'داشبورد', href: '/dashboard', icon: LayoutDashboard },
   { name: 'لینک‌های من', href: '/links', icon: Link2 },
   { name: 'ساخت لینک جدید', href: '/links/new', icon: Plus },
+  { name: 'چت بات', href: '/chat', icon: Bot },
   { name: 'تیکت‌های پشتیبانی', href: '/tickets', icon: MessageSquare },
   { name: 'تنظیمات', href: '/settings', icon: Settings },
 ]
@@ -144,6 +148,21 @@ export default function GlobalNavigation() {
               </Link>
             )}
 
+            {/* Upgrade Plan Link - Only for authenticated users who don't have PRO plan */}
+            {isAuthenticated && (session?.user as any)?.plan !== 'PRO' && (
+              <Link
+                href={(session?.user as any)?.plan === 'FREE' ? '/payment?plan=BASIC' : '/payment?plan=PRO'}
+                onClick={() => setSidebarOpen(false)}
+                className={cn(
+                  'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 group bg-gradient-to-r from-teal-500/10 to-cyan-500/10 border border-teal-500/20 dark:border-teal-400/20 hover:from-teal-500/20 hover:to-cyan-500/20'
+                )}
+              >
+                <Crown className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+                <span className="text-teal-700 dark:text-teal-300 font-semibold">ارتقا پلن</span>
+                <ArrowUp className="h-4 w-4 text-teal-600 dark:text-teal-400 mr-auto" />
+              </Link>
+            )}
+
             {/* Pricing Link - For public users */}
             {!isAuthenticated && (
               <Link
@@ -182,6 +201,17 @@ export default function GlobalNavigation() {
                     </div>
                   </div>
                 </div>
+                {(session?.user as any)?.plan !== 'PRO' && (
+                  <Link href={(session?.user as any)?.plan === 'FREE' ? '/payment?plan=BASIC' : '/payment?plan=PRO'}>
+                    <Button
+                      className="w-full bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white shadow-lg shadow-teal-500/30"
+                      onClick={() => setSidebarOpen(false)}
+                    >
+                      <Crown className="h-4 w-4 ml-2" />
+                      ارتقا پلن
+                    </Button>
+                  </Link>
+                )}
                 <Button
                   onClick={() => signOut({ callbackUrl: '/' })}
                   variant="outline"

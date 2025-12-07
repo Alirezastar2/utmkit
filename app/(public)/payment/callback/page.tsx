@@ -38,13 +38,34 @@ function PaymentCallbackContent() {
       if (paymentStatus === 'OK') {
         try {
           // Get amount from payment record
-          const paymentResponse = await fetch(`/api/payment/get?authority=${authority}`)
+          const paymentResponse = await fetch(`/api/payment/get?authority=${encodeURIComponent(authority)}`)
           if (!paymentResponse.ok) {
-            throw new Error('خطا در دریافت اطلاعات پرداخت')
+            let errorData: any = {}
+            try {
+              errorData = await paymentResponse.json()
+            } catch {
+              // Ignore parse error
+            }
+            throw new Error(errorData.error || 'خطا در دریافت اطلاعات پرداخت')
           }
 
-          const paymentData = await paymentResponse.json()
+          let paymentData: any
+          try {
+            paymentData = await paymentResponse.json()
+          } catch (parseError) {
+            console.error('Error parsing payment data:', parseError)
+            throw new Error('خطا در پردازش اطلاعات پرداخت')
+          }
+
+          if (!paymentData.payment) {
+            throw new Error('اطلاعات پرداخت یافت نشد')
+          }
+
           const amount = paymentData.payment.amount
+
+          if (!amount) {
+            throw new Error('مبلغ پرداخت یافت نشد')
+          }
 
           // Verify payment
           const verifyResponse = await fetch('/api/payment/verify', {
@@ -58,7 +79,13 @@ function PaymentCallbackContent() {
             }),
           })
 
-          const verifyData = await verifyResponse.json()
+          let verifyData: any
+          try {
+            verifyData = await verifyResponse.json()
+          } catch (parseError) {
+            console.error('Error parsing verify data:', parseError)
+            throw new Error('خطا در پردازش پاسخ تایید پرداخت')
+          }
 
           if (verifyData.success) {
             setStatus('success')
@@ -75,9 +102,10 @@ function PaymentCallbackContent() {
             toast.error(verifyData.error || 'خطا در تایید تراکنش')
           }
         } catch (error: any) {
+          console.error('Payment callback error:', error)
           setStatus('failed')
           setMessage(error.message || 'خطا در پردازش تراکنش')
-          toast.error('خطا در پردازش تراکنش')
+          toast.error(error.message || 'خطا در پردازش تراکنش')
         }
       }
     }

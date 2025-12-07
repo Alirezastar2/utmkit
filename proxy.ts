@@ -14,6 +14,7 @@ export default withAuth(
           '/',
           '/l/',
           '/api/auth',
+          '/api/public',
           '/help',
           '/pricing',
           '/api-docs',

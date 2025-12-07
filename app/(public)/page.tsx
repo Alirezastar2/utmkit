@@ -20,6 +20,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Metadata } from 'next'
 import { generateMetadata as genMeta, getBreadcrumbSchema } from '@/lib/seo'
+import ShortenLinkBox from '@/components/public/ShortenLinkBox'
 
 export const metadata: Metadata = genMeta({
   title: 'یوتیم کیت - پلتفرم ساخت لینک هوشمند و ردیابی UTM',
@@ -80,6 +81,11 @@ export default function LandingPage() {
                   <ArrowRight className="mr-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
+            </div>
+
+            {/* Shorten Link Box */}
+            <div className="mb-16">
+              <ShortenLinkBox />
             </div>
 
             {/* Stats */}
