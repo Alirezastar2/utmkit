@@ -134,8 +134,8 @@ export async function GET(
       utmContent: link.utmContent,
     })
 
-    // Redirect to final URL
-    return NextResponse.redirect(finalUrl)
+    // Redirect to final URL with proper status code (301 for permanent redirects)
+    return NextResponse.redirect(finalUrl, { status: 301 })
   } catch (error) {
     console.error('Error in redirect handler:', error)
     // On error, redirect to home

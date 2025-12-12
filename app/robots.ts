@@ -15,34 +15,49 @@ export default function robots(): MetadataRoute.Robots {
           '/admin/',
           '/auth/',
           '/payment/',
-          '/l/', // لینک‌های کوتاه - ممکن است بخواهید این را allow کنید
           '/link-expired',
+          '/settings/',
+          '/tickets/',
+          '/chat/',
         ],
       },
       {
         userAgent: 'Googlebot',
-        allow: '/',
+        allow: [
+          '/',
+          '/pricing',
+          '/help',
+          '/api-docs',
+        ],
         disallow: [
           '/api/',
           '/dashboard/',
           '/admin/',
           '/auth/',
           '/payment/',
+          '/l/', // لینک‌های کوتاه - برای privacy
         ],
       },
       {
         userAgent: 'Bingbot',
-        allow: '/',
+        allow: [
+          '/',
+          '/pricing',
+          '/help',
+          '/api-docs',
+        ],
         disallow: [
           '/api/',
           '/dashboard/',
           '/admin/',
           '/auth/',
           '/payment/',
+          '/l/',
         ],
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,
+    host: baseUrl,
   }
 }
 

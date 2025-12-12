@@ -1,45 +1,67 @@
 import { Metadata } from 'next'
-import { generateMetadata as genMeta } from '@/lib/seo'
+import { generateMetadata as genMeta, getFAQSchema, getBreadcrumbSchema } from '@/lib/seo'
+
+export const metadata: Metadata = genMeta({
+  title: 'راهنما و پشتیبانی - یوتیم کیت',
+  description: 'راهنمای کامل استفاده از یوتیم کیت، سوالات متداول، آموزش UTM tracking و پشتیبانی. پاسخ تمام سوالات خود را اینجا پیدا کنید.',
+  keywords: ['راهنمای لینک کوتاه', 'آموزش UTM', 'پشتیبانی', 'سوالات متداول', 'FAQ', 'help', 'support'],
+  url: '/help',
+  type: 'website',
+})
 
 const faqs = [
   {
     question: 'چگونه لینک کوتاه بسازم؟',
-    answer: 'برای ساخت لینک کوتاه، به صفحه "ساخت لینک جدید" بروید، لینک اصلی خود را وارد کنید و در صورت نیاز پارامترهای UTM را تنظیم کنید.',
+    answer: 'برای ساخت لینک کوتاه، به صفحه "ساخت لینک جدید" بروید، لینک اصلی خود را وارد کنید و در صورت نیاز پارامترهای UTM را تنظیم کنید. سپس روی دکمه "ساخت لینک" کلیک کنید.',
   },
   {
     question: 'پارامترهای UTM چیست؟',
-    answer: 'پارامترهای UTM به شما کمک می‌کنند تا منبع ترافیک وب‌سایت خود را ردیابی کنید.',
+    answer: 'پارامترهای UTM به شما کمک می‌کنند تا منبع ترافیک وب‌سایت خود را ردیابی کنید. این پارامترها شامل utm_source (منبع)، utm_medium (رسانه)، utm_campaign (کمپین)، utm_term (کلمه کلیدی) و utm_content (محتوای تبلیغ) هستند.',
   },
   {
     question: 'چگونه می‌توانم آمار کلیک‌های لینک خود را ببینم؟',
-    answer: 'برای مشاهده آمار، به صفحه "لینک‌های من" بروید و روی دکمه "جزئیات" در کنار لینک مورد نظر کلیک کنید.',
+    answer: 'برای مشاهده آمار، به صفحه "لینک‌های من" بروید و روی دکمه "جزئیات" در کنار لینک مورد نظر کلیک کنید. در صفحه جزئیات می‌توانید آمار کامل کلیک‌ها، توزیع بر اساس دستگاه، مرجع و روند زمانی را مشاهده کنید.',
+  },
+  {
+    question: 'آیا می‌توانم لینک‌های خود را دسته‌بندی کنم؟',
+    answer: 'بله، می‌توانید دسته‌بندی‌های مختلف ایجاد کنید و لینک‌های خود را در آن‌ها سازماندهی کنید. برای این کار به صفحه "تنظیمات" > "دسته‌بندی‌ها" بروید.',
+  },
+  {
+    question: 'چگونه می‌توانم لینک‌های خود را export کنم؟',
+    answer: 'این قابلیت فقط در پلن‌های پایه و حرفه‌ای در دسترس است. پس از ارتقا پلن، می‌توانید از دکمه "Export CSV" در صفحه لینک‌ها استفاده کنید.',
+  },
+  {
+    question: 'آیا می‌توانم دامنه اختصاصی استفاده کنم؟',
+    answer: 'بله، استفاده از دامنه اختصاصی در پلن‌های پایه (۱ دامنه) و حرفه‌ای (چند دامنه) امکان‌پذیر است. برای اطلاعات بیشتر به صفحه "قیمت‌ها" مراجعه کنید.',
+  },
+  {
+    question: 'چگونه می‌توانم از API استفاده کنم؟',
+    answer: 'دسترسی API در پلن‌های پایه و حرفه‌ای در دسترس است. پس از ورود به حساب کاربری، می‌توانید API Key خود را از تنظیمات دریافت کنید. برای مستندات کامل به صفحه "مستندات API" مراجعه کنید.',
+  },
+  {
+    question: 'آیا می‌توانم لینک‌ها را با رمز عبور محافظت کنم؟',
+    answer: 'بله، در هنگام ساخت یا ویرایش لینک می‌توانید یک رمز عبور تنظیم کنید. در این صورت، کاربران برای دسترسی به لینک باید رمز عبور را وارد کنند.',
+  },
+  {
+    question: 'چگونه می‌توانم تاریخ انقضا برای لینک تنظیم کنم؟',
+    answer: 'در فرم ساخت یا ویرایش لینک، می‌توانید تاریخ انقضا را تنظیم کنید. پس از انقضا، لینک دیگر فعال نخواهد بود.',
+  },
+  {
+    question: 'آیا می‌توانم لینک‌ها را به صورت دسته‌ای import کنم؟',
+    answer: 'بله، می‌توانید فایل CSV حاوی لینک‌های خود را در صفحه "لینک‌های من" آپلود کنید. فرمت CSV باید شامل ستون‌های originalUrl، title، utmSource، utmMedium و utmCampaign باشد.',
   },
 ]
-
-export const metadata: Metadata = genMeta({
-  title: 'راهنما و پشتیبانی',
-  description: 'راهنمای کامل استفاده از یوتیم کیت، سوالات متداول، آموزش UTM tracking و پشتیبانی.',
-  keywords: ['راهنما', 'پشتیبانی', 'سوالات متداول', 'FAQ', 'آموزش', 'help'],
-  url: '/help',
-})
 
 export default function HelpLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const faqSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: faqs.map((faq) => ({
-      '@type': 'Question',
-      name: faq.question,
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: faq.answer,
-      },
-    })),
-  }
+  const faqSchema = getFAQSchema(faqs)
+  const breadcrumbSchema = getBreadcrumbSchema([
+    { name: 'خانه', url: '/' },
+    { name: 'راهنما', url: '/help' },
+  ])
 
   return (
     <>
@@ -47,8 +69,11 @@ export default function HelpLayout({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
       {children}
     </>
   )
 }
-

@@ -75,6 +75,10 @@ export function generateMetadata({
     metadataBase: new URL(siteConfig.url),
     alternates: {
       canonical: fullUrl,
+      languages: {
+        'fa-IR': fullUrl,
+        'en-US': fullUrl.replace('/fa', '/en'),
+      },
     },
     robots: {
       index: !noindex,
@@ -185,11 +189,29 @@ export function getSoftwareApplicationSchema() {
     name: siteConfig.name,
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Web',
-    offers: {
-      '@type': 'Offer',
-      price: '0',
-      priceCurrency: 'IRR',
-    },
+    browserRequirements: 'Requires JavaScript. Requires HTML5.',
+    softwareVersion: '1.0.1',
+    releaseNotes: 'پلتفرم حرفه‌ای ساخت لینک کوتاه و ردیابی UTM',
+    offers: [
+      {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'IRR',
+        name: 'پلن رایگان',
+      },
+      {
+        '@type': 'Offer',
+        price: '99000',
+        priceCurrency: 'IRR',
+        name: 'پلن پایه',
+      },
+      {
+        '@type': 'Offer',
+        price: '299000',
+        priceCurrency: 'IRR',
+        name: 'پلن حرفه‌ای',
+      },
+    ],
     aggregateRating: {
       '@type': 'AggregateRating',
       ratingValue: '4.8',
@@ -197,6 +219,17 @@ export function getSoftwareApplicationSchema() {
       bestRating: '5',
       worstRating: '1',
     },
+    featureList: [
+      'ساخت لینک کوتاه',
+      'ردیابی UTM',
+      'آمار دقیق',
+      'QR Code',
+      'دسته‌بندی لینک‌ها',
+      'Export CSV',
+      'API',
+      'Webhooks',
+      'Real-time Analytics',
+    ],
   }
 }
 
@@ -206,15 +239,44 @@ export function getServiceSchema() {
     '@context': 'https://schema.org',
     '@type': 'Service',
     serviceType: 'URL Shortening and UTM Tracking',
+    name: 'سرویس لینک کوتاه و ردیابی UTM',
+    description: siteConfig.description,
     provider: {
       '@type': 'Organization',
       name: siteConfig.name,
+      url: siteConfig.url,
     },
     areaServed: {
       '@type': 'Country',
       name: 'Iran',
     },
-    description: siteConfig.description,
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: 'پلن‌های یوتیم کیت',
+      itemListElement: [
+        {
+          '@type': 'Offer',
+          itemOffered: {
+            '@type': 'Service',
+            name: 'پلن رایگان',
+          },
+        },
+        {
+          '@type': 'Offer',
+          itemOffered: {
+            '@type': 'Service',
+            name: 'پلن پایه',
+          },
+        },
+        {
+          '@type': 'Offer',
+          itemOffered: {
+            '@type': 'Service',
+            name: 'پلن حرفه‌ای',
+          },
+        },
+      ],
+    },
   }
 }
 

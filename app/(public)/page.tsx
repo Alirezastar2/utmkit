@@ -24,8 +24,21 @@ import ShortenLinkBox from '@/components/public/ShortenLinkBox'
 
 export const metadata: Metadata = genMeta({
   title: 'یوتیم کیت - پلتفرم ساخت لینک هوشمند و ردیابی UTM',
-  description: 'پلتفرم حرفه‌ای ساخت لینک کوتاه و ردیابی UTM برای کمپین‌های بازاریابی. ساخت لینک‌های کوتاه، ردیابی کلیک‌ها، آمار دقیق و QR Code برای کسب‌وکارهای ایرانی.',
+  description: 'پلتفرم حرفه‌ای ساخت لینک کوتاه و ردیابی UTM برای کمپین‌های بازاریابی. ساخت لینک‌های کوتاه، ردیابی کلیک‌ها، آمار دقیق جغرافیایی، QR Code، Webhooks و Real-time Analytics برای کسب‌وکارهای ایرانی.',
   url: '/',
+  keywords: [
+    'لینک کوتاه',
+    'کوتاه کننده لینک',
+    'ردیابی UTM',
+    'UTM tracking',
+    'آمار بازاریابی',
+    'لینک کوتاه فارسی',
+    'URL shortener',
+    'marketing analytics',
+    'QR Code',
+    'Webhooks',
+    'Real-time Analytics',
+  ],
 })
 
 export default function LandingPage() {

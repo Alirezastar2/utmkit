@@ -2,6 +2,15 @@ import AdminLayoutComponent from '@/components/admin/AdminLayout'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 import { authOptions } from '@/lib/auth'
+import { Metadata } from 'next'
+import { generateMetadata as genMeta } from '@/lib/seo'
+
+export const metadata: Metadata = genMeta({
+  title: 'پنل مدیریت - یوتیم کیت',
+  description: 'پنل مدیریت یوتیم کیت',
+  noindex: true,
+  nofollow: true,
+})
 
 export default async function AdminLayout({
   children,

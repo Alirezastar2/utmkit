@@ -34,19 +34,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ]
 
-  // صفحات احراز هویت (Priority متوسط)
+  // صفحات احراز هویت (Priority متوسط - noindex)
   const authPages: MetadataRoute.Sitemap = [
     {
       url: `${baseUrl}/auth/register`,
       lastModified: now,
       changeFrequency: 'monthly',
-      priority: 0.6,
+      priority: 0.3,
     },
     {
       url: `${baseUrl}/auth/login`,
       lastModified: now,
       changeFrequency: 'monthly',
-      priority: 0.5,
+      priority: 0.3,
     },
   ]
 

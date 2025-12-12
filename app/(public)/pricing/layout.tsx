@@ -2,9 +2,9 @@ import { Metadata } from 'next'
 import { generateMetadata as genMeta } from '@/lib/seo'
 
 export const metadata: Metadata = genMeta({
-  title: 'قیمت‌ها و پلن‌ها',
-  description: 'انتخاب پلن مناسب برای نیازهای خود. پلن رایگان، پایه و حرفه‌ای با ویژگی‌های مختلف برای ساخت لینک کوتاه و ردیابی UTM.',
-  keywords: ['قیمت', 'پلن', 'اشتراک', 'لینک کوتاه', 'UTM tracking', 'pricing'],
+  title: 'تعرفه و قیمت‌گذاری - یوتیم کیت',
+  description: 'پلن‌های مختلف یوتیم کیت: رایگان، پایه و حرفه‌ای. انتخاب پلن مناسب برای کسب‌وکار شما. ویژگی‌های کامل در پلن‌های پرداختی.',
+  keywords: ['قیمت لینک کوتاه', 'تعرفه UTM tracking', 'پلن لینک کوتاه', 'هزینه لینک کوتاه', 'pricing', 'اشتراک'],
   url: '/pricing',
   type: 'website',
 })
