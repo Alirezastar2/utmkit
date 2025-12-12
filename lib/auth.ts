@@ -3,8 +3,11 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
 import { prisma } from './prisma'
 
-// بررسی وجود NEXTAUTH_SECRET فقط در runtime (نه در build time)
-// در Next.js، متغیرهای محیطی در build time ممکن است در دسترس نباشند
+// بررسی وجود NEXTAUTH_SECRET
+// در Next.js، متغیرهای محیطی در build time لود می‌شوند اما
+// هشدار را فقط در runtime نشان می‌دهیم تا از هشدارهای غیرضروری در build جلوگیری کنیم
+let hasWarned = false
+
 const getAuthSecret = () => {
   if (typeof window !== 'undefined') {
     // در client-side اجرا نمی‌شود
@@ -12,10 +15,23 @@ const getAuthSecret = () => {
   }
   
   const secret = process.env.NEXTAUTH_SECRET
-  if (!secret && process.env.NODE_ENV === 'production') {
+  
+  // فقط در runtime هشدار بده (نه در build time)
+  // در build time، Next.js این کد را برای static generation اجرا می‌کند
+  // اما secret باید در .env موجود باشد. هشدار را فقط در runtime نشان می‌دهیم
+  // با بررسی اینکه آیا در حال build هستیم یا خیر
+  const isBuildContext = process.env.NEXT_PHASE === 'phase-production-build' ||
+                         process.env.NEXT_PHASE === 'phase-development-build' ||
+                         process.argv.includes('build') ||
+                         process.argv.some(arg => arg.includes('next') && arg.includes('build'))
+  
+  // فقط در production runtime (نه build) هشدار بده
+  if (!secret && process.env.NODE_ENV === 'production' && !isBuildContext && !hasWarned) {
+    hasWarned = true
     console.error('⚠️  NEXTAUTH_SECRET is not set in environment variables')
     console.error('⚠️  This will cause authentication to fail in production')
   }
+  
   return secret
 }
 

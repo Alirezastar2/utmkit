@@ -129,3 +129,4 @@ export default function PlanUpgradeCard({ currentPlan, planExpiresAt }: PlanUpgr
     </Card>
   )
 }
+
