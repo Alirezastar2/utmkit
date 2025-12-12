@@ -4,6 +4,8 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import LinkDetailStats from '@/components/links/LinkDetailStats'
 import QRCodeDisplay from '@/components/links/QRCodeDisplay'
+import LinkPreview from '@/components/links/LinkPreview'
+import RealtimeStats from '@/components/analytics/RealtimeStats'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { CopyButton } from '@/components/ui/copy-button'
@@ -219,6 +221,12 @@ export default async function LinkDetailPage({
           </CardContent>
         </Card>
       </div>
+
+      {/* Link Preview */}
+      <LinkPreview linkId={id} />
+
+      {/* Real-time Stats */}
+      <RealtimeStats linkId={id} initialClicks={link._count.clicks} />
 
       {/* QR Code and Stats */}
       <div className="grid gap-6 md:grid-cols-2">

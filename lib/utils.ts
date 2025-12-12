@@ -56,6 +56,41 @@ export function parseUserAgent(userAgent: string | null | undefined): {
   return { deviceType, os, browser }
 }
 
+// Get geographic location from IP address
+export async function getGeoLocation(ip: string): Promise<{ country: string | null; city: string | null }> {
+  // Skip localhost and private IPs
+  if (!ip || ip === 'unknown' || ip.startsWith('127.') || ip.startsWith('192.168.') || ip.startsWith('10.') || ip.startsWith('172.')) {
+    return { country: null, city: null }
+  }
+
+  try {
+    // Use ip-api.com (free, no API key required, 45 requests/minute)
+    const response = await fetch(`http://ip-api.com/json/${ip}?fields=status,countryCode,city`, {
+      headers: {
+        'Accept': 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      return { country: null, city: null }
+    }
+
+    const data = await response.json()
+    
+    if (data.status === 'success') {
+      return {
+        country: data.countryCode || null,
+        city: data.city || null,
+      }
+    }
+
+    return { country: null, city: null }
+  } catch (error) {
+    console.error('Error fetching geo location:', error)
+    return { country: null, city: null }
+  }
+}
+
 // Build final URL with UTM parameters
 export function buildFinalUrl(originalUrl: string, utmParams: {
   utmSource?: string | null

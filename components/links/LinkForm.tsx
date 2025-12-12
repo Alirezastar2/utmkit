@@ -23,6 +23,7 @@ interface LinkFormProps {
     utmContent: string | null
     password: string | null
     expiresAt: Date | null
+    maxClicks: number | null
     isActive: boolean
     categoryId: string | null
   }
@@ -52,6 +53,7 @@ export default function LinkForm({ link }: LinkFormProps = {}) {
     utmContent: link?.utmContent || '',
     password: '',
     expiresAt: link?.expiresAt ? new Date(link.expiresAt).toISOString().split('T')[0] : '',
+    maxClicks: link?.maxClicks?.toString() || '',
     isActive: link?.isActive ?? true,
     categoryId: link?.categoryId || '',
   })
@@ -93,6 +95,7 @@ export default function LinkForm({ link }: LinkFormProps = {}) {
           ...formData,
           expiresAt: formData.expiresAt || null,
           password: formData.password || null,
+          maxClicks: formData.maxClicks ? parseInt(formData.maxClicks) : null,
         }),
       })
 
@@ -127,6 +130,7 @@ export default function LinkForm({ link }: LinkFormProps = {}) {
           utmContent: '',
           password: '',
           expiresAt: '',
+          maxClicks: '',
           isActive: true,
           categoryId: '',
         })
@@ -367,6 +371,24 @@ export default function LinkForm({ link }: LinkFormProps = {}) {
                   />
                   <p className="text-xs text-gray-500">
                     لینک پس از این تاریخ غیرفعال می‌شود
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="maxClicks">حداکثر تعداد کلیک (اختیاری)</Label>
+                  <Input
+                    id="maxClicks"
+                    type="number"
+                    min="1"
+                    placeholder="مثال: 100"
+                    value={formData.maxClicks}
+                    onChange={(e) =>
+                      setFormData({ ...formData, maxClicks: e.target.value })
+                    }
+                    disabled={loading}
+                  />
+                  <p className="text-xs text-gray-500">
+                    لینک پس از رسیدن به این تعداد کلیک غیرفعال می‌شود
                   </p>
                 </div>
 

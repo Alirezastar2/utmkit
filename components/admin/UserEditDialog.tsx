@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import {
@@ -40,10 +40,23 @@ export default function UserEditDialog({ user }: UserEditDialogProps) {
   const [formData, setFormData] = useState({
     name: user.name || '',
     email: user.email,
-    role: user.role,
-    plan: user.plan,
+    role: user.role || 'USER',
+    plan: user.plan || 'FREE',
     planExpiresAt: user.planExpiresAt ? new Date(user.planExpiresAt).toISOString().split('T')[0] : '',
   })
+
+  // Reset form data when dialog opens or user changes
+  useEffect(() => {
+    if (open) {
+      setFormData({
+        name: user.name || '',
+        email: user.email,
+        role: user.role || 'USER',
+        plan: user.plan || 'FREE',
+        planExpiresAt: user.planExpiresAt ? new Date(user.planExpiresAt).toISOString().split('T')[0] : '',
+      })
+    }
+  }, [open, user])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -78,9 +91,8 @@ export default function UserEditDialog({ user }: UserEditDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <Edit className="ml-2 h-4 w-4" />
-          ویرایش کاربر
+        <Button variant="ghost" size="sm" title="ویرایش کاربر">
+          <Edit className="h-4 w-4" />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
@@ -112,7 +124,7 @@ export default function UserEditDialog({ user }: UserEditDialogProps) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="role">نقش</Label>
-            <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
+            <Select value={formData.role || 'USER'} onValueChange={(value) => setFormData({ ...formData, role: value })}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -124,7 +136,7 @@ export default function UserEditDialog({ user }: UserEditDialogProps) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="plan">پلن</Label>
-            <Select value={formData.plan} onValueChange={(value) => setFormData({ ...formData, plan: value })}>
+            <Select value={formData.plan || 'FREE'} onValueChange={(value) => setFormData({ ...formData, plan: value })}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>

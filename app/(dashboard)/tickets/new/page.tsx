@@ -18,7 +18,7 @@ export default function NewTicketPage() {
     subject: '',
     description: '',
     priority: 'MEDIUM',
-    category: '',
+    category: undefined as string | undefined,
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,7 +31,10 @@ export default function NewTicketPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          category: formData.category ?? undefined,
+        }),
       })
 
       if (!response.ok) {
@@ -81,7 +84,7 @@ export default function NewTicketPage() {
             <div className="space-y-2">
               <Label htmlFor="category">دسته‌بندی</Label>
               <Select
-                value={formData.category}
+                value={formData.category || undefined}
                 onValueChange={(value) => setFormData({ ...formData, category: value })}
               >
                 <SelectTrigger>

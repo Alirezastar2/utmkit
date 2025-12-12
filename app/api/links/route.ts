@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { generateShortCode } from '@/lib/utils'
+import { triggerWebhooks } from '@/lib/webhooks'
 import { z } from 'zod'
 
 const createLinkSchema = z.object({
@@ -91,6 +92,15 @@ export async function POST(request: Request) {
         utmTerm: validatedData.utmTerm || null,
         utmContent: validatedData.utmContent || null,
       },
+    })
+
+    // Trigger webhook for link_created event
+    triggerWebhooks(session.user.id, 'link_created', {
+      linkId: link.id,
+      shortCode: link.shortCode,
+      originalUrl: link.originalUrl,
+      title: link.title,
+      timestamp: link.createdAt.toISOString(),
     })
 
     return NextResponse.json(link, { status: 201 })

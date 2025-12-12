@@ -26,6 +26,11 @@ model User {
   linkTemplates LinkTemplate[]
   tickets       Ticket[]
   payments      Payment[]
+  webhooks      Webhook[]
+  reports       ScheduledReport[]
+  ownedTeams    Team[]          @relation("TeamOwner")
+  teamMembers   TeamMember[]     @relation("TeamMembers")
+  customDomains CustomDomain[]
 }
 
 model Link {
@@ -43,12 +48,14 @@ model Link {
   utmContent  String?
   password    String?
   expiresAt   DateTime?
+  maxClicks   Int?      // Maximum number of clicks allowed
   isActive    Boolean   @default(true)
   categoryId  String?
   category    Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   clicks      Click[]
+  teamLinks   TeamLink[]
 }
 
 model Category {
@@ -86,6 +93,8 @@ model Click {
   deviceType String   @default("UNKNOWN") // MOBILE, DESKTOP, TABLET, UNKNOWN
   os         String?
   browser    String?
+  country    String?  // Country code (e.g., IR, US)
+  city       String?  // City name
   createdAt  DateTime @default(now())
 }
 
@@ -131,5 +140,89 @@ model Payment {
   verifiedAt    DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+model Webhook {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  url         String
+  events      String   // Comma-separated: click,link_created,link_updated,link_deleted
+  secret      String?  // Secret for webhook signature
+  isActive    Boolean  @default(true)
+  lastTrigger DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ScheduledReport {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  frequency   String   // daily, weekly, monthly
+  dayOfWeek   Int?     // 0-6 for weekly (0 = Sunday)
+  dayOfMonth  Int?     // 1-31 for monthly
+  time        String   // HH:mm format
+  format      String   @default("email") // email, pdf, both
+  linkIds     String?  // Comma-separated link IDs, null = all links
+  email       String?  // Email to send report to
+  isActive    Boolean  @default(true)
+  lastSent    DateTime?
+  nextSend    DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Team {
+  id          String        @id @default(cuid())
+  name        String
+  ownerId     String
+  owner       User          @relation("TeamOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members     TeamMember[]
+  sharedLinks TeamLink[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation("TeamMembers", fields: [userId], references: [id], onDelete: Cascade)
+  role      String   @default("VIEWER") // OWNER, ADMIN, EDITOR, VIEWER
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([teamId, userId])
+}
+
+model TeamLink {
+  id        String   @id @default(cuid())
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  linkId    String
+  link      Link     @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([teamId, linkId])
+}
+
+model CustomDomain {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  domain      String   @unique
+  verified    Boolean  @default(false)
+  verificationToken String
+  dnsRecords  String?  // JSON string of DNS records needed
+  sslEnabled  Boolean  @default(false)
+  sslCert     String?  // SSL certificate
+  sslKey      String?  // SSL private key
+  isActive    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  verifiedAt  DateTime?
 }
 

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { buildFinalUrl, parseUserAgent } from '@/lib/utils'
+import { buildFinalUrl, parseUserAgent, getGeoLocation } from '@/lib/utils'
+import { triggerWebhooks } from '@/lib/webhooks'
 import { headers } from 'next/headers'
 
 export async function GET(
@@ -26,6 +27,17 @@ export async function GET(
     // Check expiration
     if (link.expiresAt && new Date(link.expiresAt) < new Date()) {
       return NextResponse.redirect(new URL('/link-expired', request.url))
+    }
+
+    // Check max clicks limit
+    if (link.maxClicks) {
+      const clickCount = await prisma.click.count({
+        where: { linkId: link.id },
+      })
+      
+      if (clickCount >= link.maxClicks) {
+        return NextResponse.redirect(new URL('/link-expired', request.url))
+      }
     }
 
     // Check password protection
@@ -80,17 +92,37 @@ export async function GET(
     // Parse user agent
     const { deviceType, os, browser } = parseUserAgent(userAgent)
 
+    // Get geographic location
+    const cleanIp = ip.split(',')[0].trim()
+    const { country, city } = await getGeoLocation(cleanIp)
+
     // Log the click
-    await prisma.click.create({
+    const click = await prisma.click.create({
       data: {
         linkId: link.id,
-        ip: ip.split(',')[0].trim(), // Get first IP if multiple
+        ip: cleanIp,
         userAgent,
         referer,
         deviceType,
         os,
         browser,
+        country,
+        city,
       },
+    })
+
+    // Trigger webhook for click event
+    triggerWebhooks(link.userId, 'click', {
+      linkId: link.id,
+      shortCode: link.shortCode,
+      clickId: click.id,
+      ip: cleanIp,
+      country,
+      city,
+      deviceType,
+      os,
+      browser,
+      timestamp: click.createdAt.toISOString(),
     })
 
     // Build final URL with UTM parameters

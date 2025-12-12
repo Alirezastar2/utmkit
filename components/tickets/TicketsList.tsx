@@ -42,18 +42,18 @@ export default function TicketsList() {
   const [tickets, setTickets] = useState<Ticket[]>([])
   const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState({
-    status: '',
-    priority: '',
-    category: '',
+    status: 'all',
+    priority: 'all',
+    category: 'all',
   })
 
   const fetchTickets = async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams()
-      if (filters.status) params.append('status', filters.status)
-      if (filters.priority) params.append('priority', filters.priority)
-      if (filters.category) params.append('category', filters.category)
+      if (filters.status && filters.status !== 'all') params.append('status', filters.status)
+      if (filters.priority && filters.priority !== 'all') params.append('priority', filters.priority)
+      if (filters.category && filters.category !== 'all') params.append('category', filters.category)
 
       const response = await fetch(`/api/tickets?${params.toString()}`)
       if (!response.ok) throw new Error('خطا در دریافت تیکت‌ها')
@@ -111,7 +111,7 @@ export default function TicketsList() {
                   <SelectValue placeholder="همه وضعیت‌ها" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">همه وضعیت‌ها</SelectItem>
+                  <SelectItem value="all">همه وضعیت‌ها</SelectItem>
                   <SelectItem value="OPEN">باز</SelectItem>
                   <SelectItem value="IN_PROGRESS">در حال بررسی</SelectItem>
                   <SelectItem value="RESOLVED">حل شده</SelectItem>
@@ -129,7 +129,7 @@ export default function TicketsList() {
                   <SelectValue placeholder="همه اولویت‌ها" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">همه اولویت‌ها</SelectItem>
+                  <SelectItem value="all">همه اولویت‌ها</SelectItem>
                   <SelectItem value="LOW">پایین</SelectItem>
                   <SelectItem value="MEDIUM">متوسط</SelectItem>
                   <SelectItem value="HIGH">بالا</SelectItem>
@@ -147,7 +147,7 @@ export default function TicketsList() {
                   <SelectValue placeholder="همه دسته‌بندی‌ها" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">همه دسته‌بندی‌ها</SelectItem>
+                  <SelectItem value="all">همه دسته‌بندی‌ها</SelectItem>
                   <SelectItem value="technical">مشکل فنی</SelectItem>
                   <SelectItem value="billing">صورتحساب و پرداخت</SelectItem>
                   <SelectItem value="feature">درخواست ویژگی جدید</SelectItem>

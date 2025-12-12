@@ -2,6 +2,8 @@ import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Suspense } from 'react'
 import UsersTable from '@/components/admin/UsersTable'
 
 async function getUsers(searchParams: any) {
@@ -108,6 +110,15 @@ export default async function AdminUsersPage({
 
   const data = await getUsers(searchParams)
 
+  // Get total stats
+  const [totalUsers, totalAdmins, totalFreeUsers, totalBasicUsers, totalProUsers] = await Promise.all([
+    prisma.user.count(),
+    prisma.user.count({ where: { role: 'ADMIN' } }),
+    prisma.user.count({ where: { plan: 'FREE' } }),
+    prisma.user.count({ where: { plan: 'BASIC' } }),
+    prisma.user.count({ where: { plan: 'PRO' } }),
+  ])
+
   return (
     <div className="space-y-6">
       <div>
@@ -117,15 +128,75 @@ export default async function AdminUsersPage({
         </p>
       </div>
 
-      <UsersTable
-        initialUsers={data.users}
-        initialPagination={data.pagination}
-        initialFilters={{
-          search: searchParams.search || '',
-          role: searchParams.role || '',
-          plan: searchParams.plan || '',
-        }}
-      />
+      {/* Stats Cards */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
+        <Card className="hover-lift">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">کل کاربران</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {totalUsers.toLocaleString('fa-IR')}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="hover-lift border-l-4 border-l-purple-500">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">ادمین‌ها</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {totalAdmins.toLocaleString('fa-IR')}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="hover-lift border-l-4 border-l-gray-500">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">رایگان</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {totalFreeUsers.toLocaleString('fa-IR')}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="hover-lift border-l-4 border-l-blue-500">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">پایه</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {totalBasicUsers.toLocaleString('fa-IR')}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="hover-lift border-l-4 border-l-teal-500">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">حرفه‌ای</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {totalProUsers.toLocaleString('fa-IR')}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Suspense fallback={<div className="text-center py-12">در حال بارگذاری...</div>}>
+        <UsersTable
+          initialUsers={data.users}
+          initialPagination={data.pagination}
+          initialFilters={{
+            search: searchParams.search || '',
+            role: searchParams.role || 'all',
+            plan: searchParams.plan || 'all',
+          }}
+        />
+      </Suspense>
     </div>
   )
 }

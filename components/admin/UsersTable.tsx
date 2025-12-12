@@ -15,6 +15,8 @@ import {
 } from '@/components/ui/select'
 import { Search, ExternalLink, Edit, Trash2, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import UserEditDialog from './UserEditDialog'
+import DeleteUserDialog from './DeleteUserDialog'
 
 interface User {
   id: string
@@ -54,24 +56,28 @@ export default function UsersTable({
   const router = useRouter()
   const searchParams = useSearchParams()
   const [search, setSearch] = useState(initialFilters.search)
-  const [role, setRole] = useState(initialFilters.role)
-  const [plan, setPlan] = useState(initialFilters.plan)
+  const [role, setRole] = useState(initialFilters.role || 'all')
+  const [plan, setPlan] = useState(initialFilters.plan || 'all')
   const [users] = useState(initialUsers)
   const [pagination] = useState(initialPagination)
 
   const handleFilter = () => {
     const params = new URLSearchParams()
     if (search) params.set('search', search)
-    if (role) params.set('role', role)
-    if (plan) params.set('plan', plan)
+    if (role && role !== 'all') params.set('role', role)
+    if (plan && plan !== 'all') params.set('plan', plan)
     params.set('page', '1')
     router.push(`/admin/users?${params.toString()}`)
   }
 
   const handlePageChange = (newPage: number) => {
-    const params = new URLSearchParams(searchParams.toString())
-    params.set('page', newPage.toString())
-    router.push(`/admin/users?${params.toString()}`)
+    try {
+      const params = new URLSearchParams(searchParams?.toString() || '')
+      params.set('page', newPage.toString())
+      router.push(`/admin/users?${params.toString()}`)
+    } catch (error) {
+      router.push(`/admin/users?page=${newPage}`)
+    }
   }
 
   const getRoleBadge = (role: string) => {
@@ -115,22 +121,22 @@ export default function UsersTable({
                 className="pr-10"
               />
             </div>
-            <Select value={role} onValueChange={setRole}>
+            <Select value={role || 'all'} onValueChange={setRole}>
               <SelectTrigger>
                 <SelectValue placeholder="نقش" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">همه نقش‌ها</SelectItem>
+                <SelectItem value="all">همه نقش‌ها</SelectItem>
                 <SelectItem value="USER">کاربر</SelectItem>
                 <SelectItem value="ADMIN">ادمین</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={plan} onValueChange={setPlan}>
+            <Select value={plan || 'all'} onValueChange={setPlan}>
               <SelectTrigger>
                 <SelectValue placeholder="پلن" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">همه پلن‌ها</SelectItem>
+                <SelectItem value="all">همه پلن‌ها</SelectItem>
                 <SelectItem value="FREE">رایگان</SelectItem>
                 <SelectItem value="BASIC">پایه</SelectItem>
                 <SelectItem value="PRO">حرفه‌ای</SelectItem>
@@ -201,10 +207,27 @@ export default function UsersTable({
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         <Link href={`/admin/users/${user.id}`}>
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" title="مشاهده جزئیات">
                             <ExternalLink className="h-4 w-4" />
                           </Button>
                         </Link>
+                        <UserEditDialog
+                          user={{
+                            id: user.id,
+                            email: user.email,
+                            name: user.name,
+                            role: user.role,
+                            plan: user.plan,
+                            planExpiresAt: user.planExpiresAt,
+                          }}
+                        />
+                        <DeleteUserDialog
+                          user={{
+                            id: user.id,
+                            email: user.email,
+                            name: user.name,
+                          }}
+                        />
                       </div>
                     </td>
                   </tr>

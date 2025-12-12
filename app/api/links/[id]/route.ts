@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { triggerWebhooks } from '@/lib/webhooks'
 
 export async function GET(
   request: Request,
@@ -77,7 +78,7 @@ export async function PATCH(
     }
 
     const body = await request.json()
-    const { title, description, originalUrl, utmSource, utmMedium, utmCampaign, utmTerm, utmContent, expiresAt, isActive, categoryId } = body
+    const { title, description, originalUrl, utmSource, utmMedium, utmCampaign, utmTerm, utmContent, expiresAt, isActive, categoryId, maxClicks } = body
 
     const updatedLink = await prisma.link.update({
       where: { id },
@@ -93,7 +94,15 @@ export async function PATCH(
         ...(expiresAt !== undefined && { expiresAt: expiresAt ? new Date(expiresAt) : null }),
         ...(isActive !== undefined && { isActive }),
         ...(categoryId !== undefined && { categoryId: categoryId || null }),
+        ...(maxClicks !== undefined && { maxClicks: maxClicks ? parseInt(maxClicks) : null }),
       },
+    })
+
+    // Trigger webhook for link_updated event
+    triggerWebhooks(session.user.id, 'link_updated', {
+      linkId: updatedLink.id,
+      shortCode: updatedLink.shortCode,
+      timestamp: updatedLink.updatedAt.toISOString(),
     })
 
     return NextResponse.json(updatedLink)
@@ -135,8 +144,21 @@ export async function DELETE(
       )
     }
 
+    // Get link data before deletion for webhook
+    const linkData = {
+      id: link.id,
+      shortCode: link.shortCode,
+    }
+
     await prisma.link.delete({
       where: { id },
+    })
+
+    // Trigger webhook for link_deleted event
+    triggerWebhooks(session.user.id, 'link_deleted', {
+      linkId: linkData.id,
+      shortCode: linkData.shortCode,
+      timestamp: new Date().toISOString(),
     })
 
     return NextResponse.json({ message: 'لینک با موفقیت حذف شد' })

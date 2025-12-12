@@ -240,7 +240,7 @@ export default function TicketDetail({ ticket: initialTicket, currentUserId, isA
             <div className="grid grid-cols-2 gap-4 pt-4 border-t">
               <div>
                 <label className="text-sm font-medium mb-2 block">وضعیت</label>
-                <Select value={status} onValueChange={handleStatusChange} disabled={loading}>
+                <Select value={status || 'OPEN'} onValueChange={handleStatusChange} disabled={loading}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -254,7 +254,7 @@ export default function TicketDetail({ ticket: initialTicket, currentUserId, isA
               </div>
               <div>
                 <label className="text-sm font-medium mb-2 block">اولویت</label>
-                <Select value={priority} onValueChange={handlePriorityChange} disabled={loading}>
+                <Select value={priority || 'MEDIUM'} onValueChange={handlePriorityChange} disabled={loading}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>

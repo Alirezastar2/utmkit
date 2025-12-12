@@ -58,9 +58,9 @@ export default function AdminTicketsList() {
   const [tickets, setTickets] = useState<Ticket[]>([])
   const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState({
-    status: '',
-    priority: '',
-    category: '',
+    status: 'all',
+    priority: 'all',
+    category: 'all',
     search: '',
   })
   const [page, setPage] = useState(1)
@@ -70,9 +70,9 @@ export default function AdminTicketsList() {
     setLoading(true)
     try {
       const params = new URLSearchParams()
-      if (filters.status) params.append('status', filters.status)
-      if (filters.priority) params.append('priority', filters.priority)
-      if (filters.category) params.append('category', filters.category)
+      if (filters.status && filters.status !== 'all') params.append('status', filters.status)
+      if (filters.priority && filters.priority !== 'all') params.append('priority', filters.priority)
+      if (filters.category && filters.category !== 'all') params.append('category', filters.category)
       params.append('page', page.toString())
       params.append('limit', '20')
 
@@ -138,7 +138,7 @@ export default function AdminTicketsList() {
                   <SelectValue placeholder="همه وضعیت‌ها" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">همه وضعیت‌ها</SelectItem>
+                  <SelectItem value="all">همه وضعیت‌ها</SelectItem>
                   <SelectItem value="OPEN">باز</SelectItem>
                   <SelectItem value="IN_PROGRESS">در حال بررسی</SelectItem>
                   <SelectItem value="RESOLVED">حل شده</SelectItem>
@@ -155,7 +155,7 @@ export default function AdminTicketsList() {
                   <SelectValue placeholder="همه اولویت‌ها" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">همه اولویت‌ها</SelectItem>
+                  <SelectItem value="all">همه اولویت‌ها</SelectItem>
                   <SelectItem value="LOW">پایین</SelectItem>
                   <SelectItem value="MEDIUM">متوسط</SelectItem>
                   <SelectItem value="HIGH">بالا</SelectItem>
